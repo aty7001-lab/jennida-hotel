@@ -1,11 +1,15 @@
 import Link from 'next/link';
-import { Home, Calendar, Users, Bed, CreditCard, Settings, LogOut, LayoutGrid, PlusCircle, ClipboardList, BarChart, CalendarDays, Wallet, TrendingUp } from 'lucide-react';
+import { Home, Calendar, Users, Bed, CreditCard, Settings, LogOut, LayoutGrid, PlusCircle, ClipboardList, CalendarDays, Wallet, TrendingUp, Building2 } from 'lucide-react';
 import { getDictionary, getLocale } from '@/lib/dictionary';
 import { LanguageSwitcher } from './LanguageSwitcher';
+import { getServerSession } from 'next-auth/next';
+import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 
 export default async function Sidebar() {
   const dict = await getDictionary();
   const currentLang = await getLocale();
+  const session = await getServerSession(authOptions);
+  const isAdmin = session?.user?.role === 'ADMIN';
 
   return (
     <div className="flex h-screen w-64 flex-col bg-slate-900 text-slate-50 border-r border-slate-800 shadow-xl z-10 transition-all duration-300">
@@ -27,6 +31,13 @@ export default async function Sidebar() {
         <SidebarItem href="/bookings/new" icon={<PlusCircle size={18} />} label="New Booking" />
         <SidebarItem href="/guests" icon={<Users size={18} />} label="Guests" />
         <SidebarItem href="/payments" icon={<CreditCard size={18} />} label={dict.sidebar.payments} />
+
+        {isAdmin && (
+          <>
+            <div className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2 mt-6 px-3">Admin</div>
+            <SidebarItem href="/branches" icon={<Building2 size={18} />} label="ສາຂາ / Branches" />
+          </>
+        )}
 
         <div className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2 mt-6 px-3">{dict.sidebar.reports}</div>
         <SidebarItem href="/reports/daily" icon={<CalendarDays size={18} />} label={dict.reports.tabDaily} />
