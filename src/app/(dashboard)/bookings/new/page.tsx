@@ -1,0 +1,23 @@
+import { createBooking } from "@/actions/bookings";
+import { getRoomsByBranch } from "@/actions/rooms";
+import { getDictionary } from "@/lib/dictionary";
+import NewBookingForm from "@/components/NewBookingForm";
+
+export default async function NewBookingPage() {
+  const dict = await getDictionary();
+  const allRooms = await getRoomsByBranch();
+  const availableRooms = allRooms.filter((r) => r.status === "AVAILABLE");
+
+  return (
+    <div className="max-w-4xl mx-auto space-y-8">
+      <div>
+        <h1 className="text-2xl font-bold text-slate-900">{dict.booking.title}</h1>
+        <p className="text-sm text-slate-500 mt-1">{dict.booking.subtitle}</p>
+      </div>
+
+      <div className="bg-white rounded-md shadow-sm border border-slate-200 overflow-hidden">
+        <NewBookingForm rooms={availableRooms} dict={dict} action={createBooking} />
+      </div>
+    </div>
+  );
+}

@@ -1,0 +1,137 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Branch {
+  id        String   @id @default(uuid())
+  name      String
+  code      String   @unique
+  address   String?
+  users     User[]
+  rooms     Room[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model User {
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  password  String
+  role      Role     @default(STAFF)
+  branchId  String?
+  branch    Branch?  @relation(fields: [branchId], references: [id])
+  logs      AuditLog[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum Role {
+  ADMIN
+  MANAGER
+  STAFF
+}
+
+model Room {
+  id           String        @id @default(uuid())
+  number       String
+  type         String        // e.g. "Standard", "Deluxe", "Suite"
+  price        Float
+  status       RoomStatus    @default(AVAILABLE)
+  branchId     String
+  branch       Branch        @relation(fields: [branchId], references: [id])
+  reservations Reservation[]
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+
+  @@unique([number, branchId])
+}
+
+enum RoomStatus {
+  AVAILABLE
+  OCCUPIED
+  CLEANING
+  MAINTENANCE
+}
+
+model Guest {
+  id           String        @id @default(uuid())
+  name         String
+  phone        String?
+  email        String?
+  idCard       String?
+  reservations Reservation[]
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+}
+
+model Reservation {
+  id          String            @id @default(uuid())
+  guestId     String
+  roomId      String
+  checkIn     DateTime
+  checkOut    DateTime
+  status      ReservationStatus @default(PENDING)
+  source      ReservationSource @default(WALK_IN)
+  totalAmount Float
+  deposit     Float
+  credit      Float             @default(0) // For refunds / cancellations
+  guest       Guest             @relation(fields: [guestId], references: [id])
+  room        Room              @relation(fields: [roomId], references: [id])
+  payments    Payment[]
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+}
+
+enum ReservationSource {
+  WALK_IN
+  PHONE
+  OTA_AGODA
+  OTA_BOOKING
+}
+
+enum ReservationStatus {
+  PENDING
+  CONFIRMED
+  CHECKED_IN
+  CHECKED_OUT
+  CANCELLED
+}
+
+model Payment {
+  id            String        @id @default(uuid())
+  reservationId String
+  amount        Float
+  method        PaymentMethod
+  status        PaymentStatus @default(PENDING)
+  reservation   Reservation   @relation(fields: [reservationId], references: [id])
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+}
+
+enum PaymentMethod {
+  CASH
+  TRANSFER
+  CREDIT_CARD
+}
+
+enum PaymentStatus {
+  PENDING
+  COMPLETED
+  REFUNDED
+}
+
+model AuditLog {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  action    String   // e.g. "CREATE_BOOKING", "CANCEL_BOOKING"
+  entity    String   // e.g. "Reservation"
+  entityId  String
+  details   String?  // JSON string or notes
+  createdAt DateTime @default(now())
+}

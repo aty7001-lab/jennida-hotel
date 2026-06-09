@@ -1,0 +1,34 @@
+version: '3.8'
+
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: hotel_web
+    restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      # Connect to the postgres service in the same docker network
+      DATABASE_URL: "postgresql://hotel_admin:hotel_password@postgres:5432/hotel_db?schema=public"
+      NEXTAUTH_URL: "http://localhost:3000"
+      NEXTAUTH_SECRET: "my-super-secret-jwt-key"
+    depends_on:
+      - postgres
+
+  postgres:
+    image: postgres:15-alpine
+    container_name: hotel_postgres
+    restart: always
+    environment:
+      POSTGRES_USER: hotel_admin
+      POSTGRES_PASSWORD: hotel_password
+      POSTGRES_DB: hotel_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - hotel_pgdata:/var/lib/postgresql/data
+
+volumes:
+  hotel_pgdata:
