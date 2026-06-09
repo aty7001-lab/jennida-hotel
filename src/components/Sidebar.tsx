@@ -36,6 +36,7 @@ export default async function Sidebar() {
           <>
             <div className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2 mt-6 px-3">Admin</div>
             <SidebarItem href="/branches" icon={<Building2 size={18} />} label="ສາຂາ / Branches" />
+            <SidebarItem href="/users" icon={<Users size={18} />} label="ຜູ້ໃຊ້ / Users" />
           </>
         )}
 
