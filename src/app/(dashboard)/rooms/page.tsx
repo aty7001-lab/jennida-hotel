@@ -1,11 +1,12 @@
 import Link from 'next/link';
-import { Plus, Search, Filter, Edit2, Building2 } from 'lucide-react';
+import { Plus, Edit2, Building2 } from 'lucide-react';
 import { getRoomsByBranch } from '@/actions/rooms';
 import { getAllBranches } from '@/actions/branches';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { DeleteRoomButton } from '@/components/DeleteRoomButton';
 import { MarkCleanButton } from '@/components/MarkCleanButton';
+import RoomFilters from '@/components/RoomFilters';
 
 const statusStyle: Record<string, string> = {
   AVAILABLE:   'bg-emerald-50 text-emerald-700 border-emerald-200',
@@ -113,28 +114,13 @@ export default async function RoomsPage({ searchParams }: { searchParams: Promis
 
       {/* Filter bar */}
       <div className="bg-white rounded-md shadow-sm border border-slate-200 overflow-hidden">
-        <form className="p-3 border-b border-slate-200 flex flex-col sm:flex-row items-center gap-3 bg-slate-50/50">
-          <div className="relative w-full sm:w-72">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={14} />
-            <input type="text" name="q" defaultValue={params.q || ''} placeholder="ຄົ້ນຫາຫ້ອງ..." className="w-full pl-9 pr-3 py-1.5 bg-white border border-slate-300 rounded-md text-sm focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all placeholder:text-slate-400" />
-          </div>
-          <select name="status" defaultValue={params.status || ''} className="w-full sm:w-40 border border-slate-300 rounded-md px-3 py-1.5 text-sm bg-white text-slate-700 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500">
-            <option value="">All Status</option>
-            <option value="AVAILABLE">Available</option>
-            <option value="OCCUPIED">Occupied</option>
-            <option value="CLEANING">Cleaning</option>
-            <option value="MAINTENANCE">Maintenance</option>
-          </select>
-          {!isStaff && (
-            <select name="branch" defaultValue={params.branch || ''} className="w-full sm:w-52 border border-slate-300 rounded-md px-3 py-1.5 text-sm bg-white text-slate-700 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500">
-              <option value="">All Branches</option>
-              {branches.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}
-            </select>
-          )}
-          <button type="submit" className="w-full sm:w-auto flex items-center justify-center gap-2 px-3 py-1.5 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700 transition-colors">
-            <Filter size={14} />Apply
-          </button>
-        </form>
+        <RoomFilters
+          branches={branches}
+          isStaff={isStaff}
+          defaultQ={params.q || ''}
+          defaultStatus={params.status || ''}
+          defaultBranch={params.branch || ''}
+        />
 
         {/* Grouped view: All Branches (Admin only, no filters) */}
         {showGrouped ? (
