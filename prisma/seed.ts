@@ -74,9 +74,33 @@ async function main() {
       rooms.push({ number: `3${i.toString().padStart(2, '0')}`, type: 'Suite', price: 3000, branchId: bkkBranch.id });
     }
 
-    // CNX Rooms (different pricing)
-    for (let i = 1; i <= 10; i++) {
-      rooms.push({ number: `1${i.toString().padStart(2, '0')}`, type: 'Standard', price: 800, branchId: cnxBranch.id });
+    // CNX Rooms — Jennida Hotel 1 (20 ຫ້ອງ)
+    const cnxRooms = [
+      // VIP 250,000₭
+      { number: '101', type: 'VIP', price: 250000 },
+      { number: '102', type: 'VIP', price: 250000 },
+      { number: '103', type: 'VIP', price: 250000 },
+      { number: '201', type: 'VIP', price: 250000 },
+      { number: '202', type: 'VIP', price: 250000 },
+      { number: '205', type: 'VIP', price: 250000 },
+      // Standard 200,000₭
+      { number: '104', type: 'Standard', price: 200000 },
+      { number: '105', type: 'Standard', price: 200000 },
+      { number: '106', type: 'Standard', price: 200000 },
+      { number: '203', type: 'Standard', price: 200000 },
+      { number: '204', type: 'Standard', price: 200000 },
+      { number: '206', type: 'Standard', price: 200000 },
+      { number: '207', type: 'Standard', price: 200000 },
+      { number: '301', type: 'Standard', price: 200000 },
+      { number: '302', type: 'Standard', price: 200000 },
+      { number: '303', type: 'Standard', price: 200000 },
+      { number: '304', type: 'Standard', price: 200000 },
+      { number: '305', type: 'Standard', price: 200000 },
+      { number: '306', type: 'Standard', price: 200000 },
+      { number: '307', type: 'Standard', price: 200000 },
+    ];
+    for (const r of cnxRooms) {
+      rooms.push({ ...r, branchId: cnxBranch.id });
     }
 
     for (const r of rooms) {
