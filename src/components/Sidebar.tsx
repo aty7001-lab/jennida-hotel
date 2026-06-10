@@ -22,7 +22,7 @@ export default async function Sidebar() {
         </div>
       </div>
       
-      <nav className="flex-1 space-y-1.5 py-6 px-4 overflow-y-auto">
+      <nav className="flex-1 space-y-1.5 py-6 px-4 overflow-y-auto scrollbar-hide">
         <div className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-4 px-3">Main Menu</div>
         <SidebarItem href="/" icon={<Home size={18} />} label={dict.sidebar.dashboard} />
         <SidebarItem href="/calendar" icon={<Calendar size={18} />} label={dict.sidebar.calendar} />

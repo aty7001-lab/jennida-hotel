@@ -7,14 +7,15 @@ datasource db {
 }
 
 model Branch {
-  id        String   @id @default(uuid())
+  id        String    @id @default(uuid())
   name      String
-  code      String   @unique
+  code      String    @unique
   address   String?
   users     User[]
   rooms     Room[]
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  expenses  Expense[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
 }
 
 model User {
@@ -134,4 +135,16 @@ model AuditLog {
   entityId  String
   details   String?  // JSON string or notes
   createdAt DateTime @default(now())
+}
+
+model Expense {
+  id          String   @id @default(uuid())
+  description String
+  amount      Float
+  category    String   @default("General")
+  date        DateTime @default(now())
+  branchId    String?
+  branch      Branch?  @relation(fields: [branchId], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }

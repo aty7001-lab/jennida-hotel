@@ -3,6 +3,7 @@ import { getRoomSummaryByBranch } from '@/actions/rooms';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import prisma from '@/lib/prisma';
+import ExportButtons from '@/components/ExportButtons';
 
 export default async function Dashboard() {
   const session = await getServerSession(authOptions);
@@ -29,11 +30,17 @@ export default async function Dashboard() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold text-black">Dashboard Overview</h1>
-        <p className="text-black">Welcome back, {session?.user?.name || "User"}. Here is today&apos;s summary.</p>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div>
+          <h1 className="text-3xl font-bold text-black">Dashboard Overview</h1>
+          <p className="text-black">Welcome back, {session?.user?.name || "User"}. Here is today&apos;s summary.</p>
+        </div>
+        <div className="no-print">
+          <ExportButtons targetId="dashboard-content" fileName="ສະຫຼຸບລາຍວັນ" />
+        </div>
       </div>
 
+      <div id="dashboard-content" className="space-y-6 print-area">
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
         {/* Stat Card 1: Rooms */}
         <div className="rounded-xl bg-white p-6 shadow-sm ring-1 ring-gray-100">
@@ -87,6 +94,7 @@ export default async function Dashboard() {
           </div>
         </div>
 
+      </div>
       </div>
     </div>
   );
