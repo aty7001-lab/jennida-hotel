@@ -25,29 +25,40 @@ body {
 }
 
 @media print {
-  /* Hide navigation, sidebar, buttons when printing */
+  /* Hide sidebar, header, buttons — keep main content */
   aside,
-  nav,
-  header,
   .no-print,
-  button {
+  button,
+  form:not(.print-form) {
     display: none !important;
   }
 
   body {
-    background: #fff;
-    color: #000;
+    background: #fff !important;
+    color: #000 !important;
+    font-size: 11pt;
   }
 
-  .print-area {
-    width: 100%;
-    max-width: 100%;
-    padding: 0;
-    margin: 0;
-  }
-
+  /* Clean up decorative styles */
   * {
-    -webkit-print-color-adjust: exact;
-    print-color-adjust: exact;
+    box-shadow: none !important;
+  }
+
+  /* Tables */
+  table { border-collapse: collapse !important; width: 100% !important; }
+  th, td { border: 1px solid #aaa !important; padding: 5px 8px !important; font-size: 10pt; }
+  thead tr { background: #f0f0f0 !important; }
+
+  /* Remove card backgrounds */
+  .rounded-xl,
+  .rounded-md,
+  .shadow-sm {
+    border: 1px solid #ddd !important;
+    background: #fff !important;
+  }
+
+  @page {
+    margin: 12mm 10mm;
+    size: A4 portrait;
   }
 }
