@@ -2,10 +2,18 @@ import { Calendar as CalendarIcon, ChevronLeft, ChevronRight, Users, Bed } from 
 import { getDictionary } from "@/lib/dictionary";
 import prisma from "@/lib/prisma";
 import Link from 'next/link';
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { getActiveBranchId } from "@/lib/active-branch";
 
 export default async function CalendarPage({ searchParams }: { searchParams: Promise<{ month?: string; year?: string }> }) {
   const params = await searchParams;
   const dict = await getDictionary();
+  const session = await getServerSession(authOptions);
+  const isStaff = session?.user?.role === "STAFF";
+  const userBranchId = session?.user?.branchId;
+  const cookieBranchId = await getActiveBranchId();
+  const activeBranchId = isStaff ? userBranchId : cookieBranchId;
 
   const now = new Date();
   const year = parseInt(params.year || String(now.getFullYear()));
@@ -23,6 +31,7 @@ export default async function CalendarPage({ searchParams }: { searchParams: Pro
         { checkIn: { lte: endOfMonth } },
         { checkOut: { gte: startOfMonth } },
         { status: { not: "CANCELLED" } },
+        ...(activeBranchId ? [{ room: { branchId: activeBranchId } }] : []),
       ],
     },
     include: {
@@ -70,7 +79,7 @@ export default async function CalendarPage({ searchParams }: { searchParams: Pro
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-slate-900">{dict.calendar.title}</h1>
-          <p className="text-sm text-slate-500 mt-1">Booking occupancy for {monthName}</p>
+          <p className="text-sm text-slate-500 mt-1">ການຈອງ {monthName}</p>
         </div>
         <div className="flex items-center gap-2">
           <Link href={`/calendar?month=${prevMonth}&year=${prevYear}`} className="p-2 border border-slate-300 rounded-md text-slate-500 hover:bg-slate-50 transition-colors">
@@ -89,16 +98,16 @@ export default async function CalendarPage({ searchParams }: { searchParams: Pro
       <div className="flex gap-4">
         <div className="flex items-center gap-2 px-3 py-1.5 bg-white border border-slate-200 rounded-md text-sm">
           <Bed size={14} className="text-slate-500" />
-          <span className="text-slate-700"><span className="font-semibold">{rooms.length}</span> rooms</span>
+          <span className="text-slate-700"><span className="font-semibold">{rooms.length}</span> ຫ້ອງ</span>
         </div>
         <div className="flex items-center gap-2 px-3 py-1.5 bg-white border border-slate-200 rounded-md text-sm">
           <Users size={14} className="text-slate-500" />
-          <span className="text-slate-700"><span className="font-semibold">{activeBookings}</span> active bookings</span>
+          <span className="text-slate-700"><span className="font-semibold">{activeBookings}</span> ການຈອງ</span>
         </div>
         <div className="flex items-center gap-3 ml-auto text-xs">
-          <span className="flex items-center gap-1"><span className="w-3 h-3 rounded bg-indigo-500"></span> Confirmed</span>
-          <span className="flex items-center gap-1"><span className="w-3 h-3 rounded bg-emerald-500"></span> Checked-in</span>
-          <span className="flex items-center gap-1"><span className="w-3 h-3 rounded bg-slate-300"></span> Checked-out</span>
+          <span className="flex items-center gap-1"><span className="w-3 h-3 rounded bg-indigo-500"></span> ຢືນຢັນ</span>
+          <span className="flex items-center gap-1"><span className="w-3 h-3 rounded bg-emerald-500"></span> ເຊັກອິນ</span>
+          <span className="flex items-center gap-1"><span className="w-3 h-3 rounded bg-slate-300"></span> ເຊັກເອົ້າ</span>
         </div>
       </div>
 
@@ -108,7 +117,7 @@ export default async function CalendarPage({ searchParams }: { searchParams: Pro
           <table className="w-full border-collapse text-xs">
             <thead>
               <tr className="bg-slate-50 border-b border-slate-200">
-                <th className="px-3 py-2.5 text-left font-semibold text-slate-600 uppercase tracking-wider text-[10px] sticky left-0 bg-slate-50 z-10 min-w-[140px] border-r border-slate-200">Room</th>
+                <th className="px-3 py-2.5 text-left font-semibold text-slate-600 uppercase tracking-wider text-[10px] sticky left-0 bg-slate-50 z-10 min-w-[140px] border-r border-slate-200">ຫ້ອງ</th>
                 {dayHeaders.map(d => (
                   <th key={d.day} className={`px-0 py-2.5 text-center font-medium min-w-[32px] ${d.isToday ? 'bg-indigo-50 text-indigo-700' : 'text-slate-500'}`}>
                     <div className="text-[9px] uppercase">{d.dayOfWeek}</div>

@@ -2,6 +2,7 @@ import { getDailySummary } from "@/actions/reports";
 import { getAllBranches } from "@/actions/branches";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { getActiveBranchId } from "@/lib/active-branch";
 import Link from "next/link";
 import { getDictionary } from "@/lib/dictionary";
 import { format } from "date-fns";
@@ -11,7 +12,8 @@ export default async function DailyReportPage({ searchParams }: { searchParams: 
   const params = await searchParams;
   const session = await getServerSession(authOptions);
   const isStaff = session?.user?.role === 'STAFF';
-  const branchFilter = isStaff ? session?.user?.branchId : params.branchId || undefined;
+  const cookieBranchId = await getActiveBranchId();
+  const branchFilter = isStaff ? session?.user?.branchId : params.branchId || cookieBranchId || undefined;
 
   const todayStr = new Date().toISOString().split('T')[0];
   const targetDate = params.date || todayStr;

@@ -3,6 +3,7 @@ import { getAllBranches } from "@/actions/branches";
 import { getExpenses } from "@/actions/expenses";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { getActiveBranchId } from "@/lib/active-branch";
 import Link from "next/link";
 import { getDictionary } from "@/lib/dictionary";
 import { format, startOfMonth, endOfMonth } from "date-fns";
@@ -52,7 +53,8 @@ export default async function RevenueReportPage({
   const isStaff = session?.user?.role === "STAFF";
   const isAdmin = session?.user?.role === "ADMIN";
   const userBranchId = session?.user?.branchId;
-  const branchFilter = isStaff ? userBranchId : params.branchId || undefined;
+  const cookieBranchId = await getActiveBranchId();
+  const branchFilter = isStaff ? userBranchId : params.branchId || cookieBranchId || undefined;
 
   const defaultStart = format(startOfMonth(new Date()), "yyyy-MM-dd");
   const defaultEnd = format(endOfMonth(new Date()), "yyyy-MM-dd");

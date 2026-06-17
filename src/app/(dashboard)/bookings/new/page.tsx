@@ -1,11 +1,21 @@
 import { createBooking } from "@/actions/bookings";
 import { getRoomsByBranch } from "@/actions/rooms";
 import { getDictionary } from "@/lib/dictionary";
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { getActiveBranchId } from "@/lib/active-branch";
 import NewBookingForm from "@/components/NewBookingForm";
 
 export default async function NewBookingPage() {
   const dict = await getDictionary();
-  const allRooms = await getRoomsByBranch();
+  const session = await getServerSession(authOptions);
+  const isStaff = session?.user?.role === "STAFF";
+  const userBranchId = session?.user?.branchId;
+  const cookieBranchId = await getActiveBranchId();
+  // STAFF → own branch only; Admin/Manager → cookie-based active branch
+  const activeBranchId = isStaff ? userBranchId : cookieBranchId;
+
+  const allRooms = await getRoomsByBranch(activeBranchId);
   const availableRooms = allRooms.filter((r) => r.status === "AVAILABLE");
 
   return (

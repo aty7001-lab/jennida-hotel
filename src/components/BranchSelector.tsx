@@ -1,7 +1,7 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { Building2 } from "lucide-react";
+import { useState } from "react";
+import { Building2, Loader2 } from "lucide-react";
 import { setActiveBranch } from "@/actions/branches";
 
 type Branch = { id: string; name: string };
@@ -13,11 +13,12 @@ export default function BranchSelector({
   branches: Branch[];
   currentBranchId: string;
 }) {
-  const router = useRouter();
+  const [loading, setLoading] = useState(false);
 
   async function handleChange(e: React.ChangeEvent<HTMLSelectElement>) {
+    setLoading(true);
     await setActiveBranch(e.target.value);
-    router.refresh();
+    window.location.reload();
   }
 
   return (
@@ -25,11 +26,13 @@ export default function BranchSelector({
       <div className="flex items-center gap-1.5 mb-1.5 px-1">
         <Building2 size={12} className="text-slate-500" />
         <span className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider">ສາຂາ</span>
+        {loading && <Loader2 size={10} className="text-indigo-400 animate-spin ml-auto" />}
       </div>
       <select
         value={currentBranchId}
         onChange={handleChange}
-        className="w-full bg-slate-800 border border-slate-700 text-slate-200 text-sm rounded-md px-3 py-2 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 cursor-pointer"
+        disabled={loading}
+        className="w-full bg-slate-800 border border-slate-700 text-slate-200 text-sm rounded-md px-3 py-2 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 cursor-pointer disabled:opacity-60"
       >
         <option value="">ທຸກສາຂາ</option>
         {branches.map((b) => (
