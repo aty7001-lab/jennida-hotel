@@ -71,8 +71,9 @@ export async function cancelReservation(reservationId: string) {
   revalidatePath("/");
 }
 
-export async function getReservations() {
+export async function getReservations(branchId?: string) {
   return prisma.reservation.findMany({
+    where: branchId ? { room: { branchId } } : undefined,
     include: {
       guest: true,
       room: { include: { branch: true } },
