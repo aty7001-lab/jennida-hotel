@@ -93,14 +93,14 @@ export default function NewBookingForm({
           <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5">
             <div>
               <label className="block text-sm font-semibold text-slate-700 mb-1.5">{dict.booking.fullName}</label>
-              <input name="guestName" type="text" required className={inputClass} placeholder="John Doe" />
+              <input name="guestName" type="text" required className={inputClass} placeholder="ສົມສາກ ສີສຸລິດ" />
             </div>
             <div>
               <label className="block text-sm font-semibold text-slate-700 mb-1.5">{dict.booking.phone}</label>
               <input name="phone" type="tel" required className={inputClass} placeholder="+856 20 xxxx xxxx" />
             </div>
             <div>
-              <label className="block text-sm font-semibold text-slate-700 mb-1.5">Email</label>
+              <label className="block text-sm font-semibold text-slate-700 mb-1.5">ອີເມວ</label>
               <input name="email" type="email" className={inputClass} placeholder="guest@email.com" />
             </div>
           </div>
@@ -124,21 +124,21 @@ export default function NewBookingForm({
             <div className="md:col-span-2">
               <label className="block text-sm font-semibold text-slate-700 mb-1.5">{dict.booking.roomType}</label>
               <select name="roomId" required onChange={handleRoomChange} className={inputClass}>
-                <option value="" disabled>Select an available room</option>
+                <option value="" disabled>ເລືອກຫ້ອງທີ່ວ່າງ</option>
                 {rooms.map((room) => (
                   <option key={room.id} value={room.id}>
-                    Room {room.number} — {room.type} ({room.branch?.name}) · ₭{room.price.toLocaleString()}/night
+                    ຫ້ອງ {room.number} — {room.type} ({room.branch?.name}) · ₭{room.price.toLocaleString()}/ຄືນ
                   </option>
                 ))}
               </select>
             </div>
             <div>
-              <label className="block text-sm font-semibold text-slate-700 mb-1.5">Booking Source</label>
+              <label className="block text-sm font-semibold text-slate-700 mb-1.5">ຊ່ອງທາງການຈອງ</label>
               <select name="source" required className={inputClass}>
-                <option value="WALK_IN">Walk-in</option>
-                <option value="PHONE">Phone</option>
-                <option value="OTA_AGODA">OTA - Agoda</option>
-                <option value="OTA_BOOKING">OTA - Booking.com</option>
+                <option value="WALK_IN">ໂດຍກົງ (Walk-in)</option>
+                <option value="PHONE">ທາງໂທລະສັບ</option>
+                <option value="OTA_AGODA">ອອນໄລນ໌ - Agoda</option>
+                <option value="OTA_BOOKING">ອອນໄລນ໌ - Booking.com</option>
               </select>
             </div>
           </div>
@@ -148,12 +148,12 @@ export default function NewBookingForm({
         <section>
           <div className="flex items-center gap-2 mb-5 pb-3 border-b border-slate-100">
             <Banknote className="text-indigo-500" size={20} />
-            <h2 className="text-lg font-semibold text-slate-800">Payment Details</h2>
+            <h2 className="text-lg font-semibold text-slate-800">ລາຍລະອຽດການຊຳລະ</h2>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5">
             <div>
               <label className="block text-sm font-semibold text-slate-700 mb-1.5">
-                Total Amount (₭)
+                ຍອດລວມ (₭)
                 {selectedRoom && nights > 0 && (
                   <span className="ml-2 text-xs font-normal text-slate-400">
                     ₭{selectedRoom.price.toLocaleString()} × {nights} ຄືນ
@@ -173,19 +173,19 @@ export default function NewBookingForm({
               />
             </div>
             <div>
-              <label className="block text-sm font-semibold text-slate-700 mb-1.5">Deposit (₭)</label>
+              <label className="block text-sm font-semibold text-slate-700 mb-1.5">ເງິນມັດຈຳ (₭)</label>
               <input name="deposit" type="number" step="1" min="0" defaultValue="0" className={inputClass} placeholder="0" />
             </div>
             <div className="md:col-span-2">
-              <label className="block text-sm font-semibold text-slate-700 mb-1.5">ວິທີຊຳລະເງິນ / Payment Method</label>
+              <label className="block text-sm font-semibold text-slate-700 mb-1.5">ວິທີຊຳລະເງິນ</label>
               <div className="flex gap-3 mt-1">
                 <label className="flex-1 flex items-center gap-3 border border-slate-300 rounded-md px-4 py-3 cursor-pointer hover:border-indigo-400 hover:bg-indigo-50/40 transition-colors has-[:checked]:border-indigo-500 has-[:checked]:bg-indigo-50">
                   <input type="radio" name="paymentMethod" value="CASH" defaultChecked className="accent-indigo-600 w-4 h-4" />
-                  <span className="text-sm font-medium text-slate-800">💵 ເງິນສົດ / Cash</span>
+                  <span className="text-sm font-medium text-slate-800">💵 ເງິນສົດ</span>
                 </label>
                 <label className="flex-1 flex items-center gap-3 border border-slate-300 rounded-md px-4 py-3 cursor-pointer hover:border-indigo-400 hover:bg-indigo-50/40 transition-colors has-[:checked]:border-indigo-500 has-[:checked]:bg-indigo-50">
                   <input type="radio" name="paymentMethod" value="TRANSFER" className="accent-indigo-600 w-4 h-4" />
-                  <span className="text-sm font-medium text-slate-800">🏦 ເງິນໂອນ / Transfer</span>
+                  <span className="text-sm font-medium text-slate-800">🏦 ໂອນເງິນ</span>
                 </label>
               </div>
             </div>

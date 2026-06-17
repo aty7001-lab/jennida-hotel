@@ -17,8 +17,8 @@ export default async function GuestsPage() {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">Guests</h1>
-          <p className="text-sm text-slate-500 mt-1">View and manage guest records.</p>
+          <h1 className="text-2xl font-bold text-slate-900">ຂໍ້ມູນແຂກ</h1>
+          <p className="text-sm text-slate-500 mt-1">ເບິ່ງ ແລະ ຈັດການຂໍ້ມູນແຂກ.</p>
         </div>
       </div>
 
@@ -27,18 +27,18 @@ export default async function GuestsPage() {
           <table className="w-full text-left border-collapse whitespace-nowrap">
             <thead>
               <tr className="bg-slate-50 text-slate-600 text-xs uppercase tracking-wider border-b border-slate-200">
-                <th className="px-4 py-3 font-semibold">Name</th>
-                <th className="px-4 py-3 font-semibold">Phone</th>
-                <th className="px-4 py-3 font-semibold">Email</th>
-                <th className="px-4 py-3 font-semibold">Last Booking</th>
-                <th className="px-4 py-3 font-semibold text-right">Registered</th>
+                <th className="px-4 py-3 font-semibold">ຊື່</th>
+                <th className="px-4 py-3 font-semibold">ເບີໂທ</th>
+                <th className="px-4 py-3 font-semibold">ອີເມວ</th>
+                <th className="px-4 py-3 font-semibold">ການຈອງລ່າສຸດ</th>
+                <th className="px-4 py-3 font-semibold text-right">ວັນທີລົງທະບຽນ</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
               {guests.length === 0 ? (
                 <tr>
                   <td colSpan={5} className="px-4 py-8 text-center text-slate-500 text-sm">
-                    No guests found.
+                    ຍັງບໍ່ມີຂໍ້ມູນແຂກ
                   </td>
                 </tr>
               ) : guests.map((guest) => (
@@ -48,7 +48,7 @@ export default async function GuestsPage() {
                   <td className="px-4 py-2.5 text-sm text-slate-700">{guest.email || '-'}</td>
                   <td className="px-4 py-2.5 text-sm text-slate-700">
                     {guest.reservations[0]
-                      ? `Room #${guest.reservations[0].room.number} (${guest.reservations[0].status})`
+                      ? `ຫ້ອງ #${guest.reservations[0].room.number} (${guest.reservations[0].status})`
                       : '-'}
                   </td>
                   <td className="px-4 py-2.5 text-sm text-slate-500 text-right">
@@ -60,7 +60,7 @@ export default async function GuestsPage() {
           </table>
         </div>
         <div className="px-4 py-3 border-t border-slate-200 bg-slate-50/50">
-          <span className="text-xs text-slate-500">Showing <span className="font-medium text-slate-900">{guests.length}</span> guests</span>
+          <span className="text-xs text-slate-500">ສະແດງ <span className="font-medium text-slate-900">{guests.length}</span> ຄົນ</span>
         </div>
       </div>
     </div>

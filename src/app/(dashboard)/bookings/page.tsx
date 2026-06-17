@@ -7,8 +7,8 @@ export default async function BookingsPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-slate-900">Bookings</h1>
-        <p className="text-sm text-slate-500 mt-1">Manage all reservations, check-in, and check-out.</p>
+        <h1 className="text-2xl font-bold text-slate-900">ການຈອງຫ້ອງ</h1>
+        <p className="text-sm text-slate-500 mt-1">ຈັດການການຈອງທັງໝົດ, ເຊັກອິນ ແລະ ເຊັກເອົ້າ.</p>
       </div>
 
       <div className="bg-white rounded-md shadow-sm border border-slate-200 overflow-hidden">
@@ -16,22 +16,22 @@ export default async function BookingsPage() {
           <table className="w-full text-left border-collapse whitespace-nowrap">
             <thead>
               <tr className="bg-slate-50 text-slate-600 text-xs uppercase tracking-wider border-b border-slate-200">
-                <th className="px-4 py-3 font-semibold">Guest</th>
-                <th className="px-4 py-3 font-semibold">Room</th>
-                <th className="px-4 py-3 font-semibold">Branch</th>
-                <th className="px-4 py-3 font-semibold">Check-in</th>
-                <th className="px-4 py-3 font-semibold">Check-out</th>
-                <th className="px-4 py-3 font-semibold">Source</th>
-                <th className="px-4 py-3 font-semibold">Amount</th>
-                <th className="px-4 py-3 font-semibold">Status</th>
-                <th className="px-4 py-3 font-semibold text-right">Actions</th>
+                <th className="px-4 py-3 font-semibold">ແຂກ</th>
+                <th className="px-4 py-3 font-semibold">ຫ້ອງ</th>
+                <th className="px-4 py-3 font-semibold">ສາຂາ</th>
+                <th className="px-4 py-3 font-semibold">ເຊັກອິນ</th>
+                <th className="px-4 py-3 font-semibold">ເຊັກເອົ້າ</th>
+                <th className="px-4 py-3 font-semibold">ຊ່ອງທາງ</th>
+                <th className="px-4 py-3 font-semibold">ຈຳນວນ</th>
+                <th className="px-4 py-3 font-semibold">ສະຖານະ</th>
+                <th className="px-4 py-3 font-semibold text-right">ຈັດການ</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
               {reservations.length === 0 ? (
                 <tr>
                   <td colSpan={9} className="px-4 py-8 text-center text-slate-500 text-sm">
-                    No reservations found.
+                    ຍັງບໍ່ມີການຈອງ
                   </td>
                 </tr>
               ) : reservations.map((r) => (
@@ -71,7 +71,7 @@ export default async function BookingsPage() {
           </table>
         </div>
         <div className="px-4 py-3 border-t border-slate-200 bg-slate-50/50">
-          <span className="text-xs text-slate-500">Showing <span className="font-medium text-slate-900">{reservations.length}</span> reservations</span>
+          <span className="text-xs text-slate-500">ສະແດງ <span className="font-medium text-slate-900">{reservations.length}</span> ການຈອງ</span>
         </div>
       </div>
     </div>

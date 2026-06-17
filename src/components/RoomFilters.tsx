@@ -58,11 +58,11 @@ export default function RoomFilters({
         onChange={submit}
         className="w-full sm:w-40 border border-slate-300 rounded-md px-3 py-1.5 text-sm bg-white text-slate-700 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
       >
-        <option value="">All Status</option>
-        <option value="AVAILABLE">Available</option>
-        <option value="OCCUPIED">Occupied</option>
-        <option value="CLEANING">Cleaning</option>
-        <option value="MAINTENANCE">Maintenance</option>
+        <option value="">ທຸກສະຖານະ</option>
+        <option value="AVAILABLE">ວ່າງ</option>
+        <option value="OCCUPIED">ມີແຂກ</option>
+        <option value="CLEANING">ກຳລັງທຳຄວາມສະອາດ</option>
+        <option value="MAINTENANCE">ສ້ອມແປງ</option>
       </select>
 
       {!isStaff && (
@@ -72,7 +72,7 @@ export default function RoomFilters({
           onChange={submit}
           className="w-full sm:w-52 border border-slate-300 rounded-md px-3 py-1.5 text-sm bg-white text-slate-700 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
         >
-          <option value="">All Branches</option>
+          <option value="">ທຸກສາຂາ</option>
           {branches.map((b) => (
             <option key={b.id} value={b.id}>{b.name}</option>
           ))}
@@ -83,7 +83,7 @@ export default function RoomFilters({
         type="submit"
         className="w-full sm:w-auto flex items-center justify-center gap-2 px-3 py-1.5 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700 transition-colors"
       >
-        <Filter size={14} />Apply
+        <Filter size={14} />ຄົ້ນຫາ
       </button>
     </form>
   );

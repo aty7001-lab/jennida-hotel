@@ -46,7 +46,7 @@ export default async function EditUserPage({ params }: { params: Promise<{ id: s
 
             <div>
               <label className="block text-sm font-semibold text-slate-700 mb-1.5">
-                Email <span className="text-red-500">*</span>
+                ອີເມວ <span className="text-red-500">*</span>
               </label>
               <input name="email" type="email" required defaultValue={user.email} className={inputClass} />
             </div>
@@ -60,7 +60,7 @@ export default async function EditUserPage({ params }: { params: Promise<{ id: s
             </div>
 
             <div>
-              <label className="block text-sm font-semibold text-slate-700 mb-1.5">Role / ສິດໃຊ້ງານ</label>
+              <label className="block text-sm font-semibold text-slate-700 mb-1.5">ສິດໃຊ້ງານ</label>
               <select name="role" defaultValue={user.role} className={inputClass}>
                 <option value="STAFF">STAFF — ພະນັກງານທົ່ວໄປ</option>
                 <option value="MANAGER">MANAGER — ຜູ້ຈັດການສາຂາ</option>

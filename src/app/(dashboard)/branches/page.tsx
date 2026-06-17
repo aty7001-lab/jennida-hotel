@@ -61,7 +61,7 @@ export default async function BranchesPage() {
                   <Link
                     href={`/branches/${branch.id}/edit`}
                     className="p-1.5 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded transition-colors"
-                    title="Edit"
+                    title="ແກ້ໄຂ"
                   >
                     <Edit2 size={16} />
                   </Link>

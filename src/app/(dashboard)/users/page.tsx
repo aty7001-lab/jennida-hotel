@@ -28,7 +28,7 @@ export default async function UsersPage() {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">ຜູ້ໃຊ້ງານ / Users</h1>
+          <h1 className="text-2xl font-bold text-slate-900">ຈັດການຜູ້ໃຊ້ງານ</h1>
           <p className="text-sm text-slate-500 mt-1">ຈັດການບັນຊີຜູ້ໃຊ້ ແລະ ກຳນົດສິດ</p>
         </div>
         <Link
@@ -46,11 +46,11 @@ export default async function UsersPage() {
             <thead>
               <tr className="bg-slate-50 text-slate-600 text-xs uppercase tracking-wider border-b border-slate-200">
                 <th className="px-4 py-3 font-semibold">ຊື່</th>
-                <th className="px-4 py-3 font-semibold">Email</th>
-                <th className="px-4 py-3 font-semibold">Role</th>
+                <th className="px-4 py-3 font-semibold">ອີເມວ</th>
+                <th className="px-4 py-3 font-semibold">ສິດໃຊ້ງານ</th>
                 <th className="px-4 py-3 font-semibold">ສາຂາ</th>
                 <th className="px-4 py-3 font-semibold">ວັນທີສ້າງ</th>
-                <th className="px-4 py-3 font-semibold text-right">Actions</th>
+                <th className="px-4 py-3 font-semibold text-right">ຈັດການ</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
@@ -94,7 +94,7 @@ export default async function UsersPage() {
                       <Link
                         href={`/users/${user.id}/edit`}
                         className="p-1.5 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded transition-colors"
-                        title="Edit"
+                        title="ແກ້ໄຂ"
                       >
                         <Edit2 size={16} />
                       </Link>

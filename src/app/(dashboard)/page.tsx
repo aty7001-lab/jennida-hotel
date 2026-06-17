@@ -32,8 +32,8 @@ export default async function Dashboard() {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <h1 className="text-3xl font-bold text-black">Dashboard Overview</h1>
-          <p className="text-black">Welcome back, {session?.user?.name || "User"}. Here is today&apos;s summary.</p>
+          <h1 className="text-3xl font-bold text-black">ພາບລວມລະບົບ</h1>
+          <p className="text-black">ຍິນດີຕ້ອນຮັບ, {session?.user?.name || "ຜູ້ໃຊ້"}. ນີ້ຄືສະຫຼຸບຂອງວັນນີ້.</p>
         </div>
         <div className="no-print">
           <ExportButtons targetId="dashboard-content" fileName="ສະຫຼຸບລາຍວັນ" />
@@ -46,7 +46,7 @@ export default async function Dashboard() {
         <div className="rounded-xl bg-white p-6 shadow-sm ring-1 ring-gray-100">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-black">Available Rooms</p>
+              <p className="text-sm font-medium text-black">ຫ້ອງວ່າງ</p>
               <p className="text-3xl font-bold text-black mt-1">
                 {roomSummary.available} <span className="text-sm font-medium text-black">/ {roomSummary.total}</span>
               </p>
@@ -58,7 +58,7 @@ export default async function Dashboard() {
           <div className="mt-4 flex items-center text-sm">
             <TrendingUp size={16} className="text-emerald-500 mr-1" />
             <span className="text-emerald-500 font-medium">{roomSummary.occupancyRate}%</span>
-            <span className="text-black ml-2">Occupancy Rate</span>
+            <span className="text-black ml-2">ອັດຕາການໃຊ້ຫ້ອງ</span>
           </div>
         </div>
 
@@ -66,7 +66,7 @@ export default async function Dashboard() {
         <div className="rounded-xl bg-white p-6 shadow-sm ring-1 ring-gray-100">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-black">Checked-in Guests</p>
+              <p className="text-sm font-medium text-black">ແຂກທີ່ Check-in ແລ້ວ</p>
               <p className="text-3xl font-bold text-black mt-1">{checkedInCount}</p>
             </div>
             <div className="rounded-full bg-blue-100 p-3 text-blue-600">
@@ -74,7 +74,7 @@ export default async function Dashboard() {
             </div>
           </div>
           <div className="mt-4 flex items-center text-sm">
-            <span className="text-black">Currently active on property</span>
+            <span className="text-black">ຢູ່ໃນໂຮງແຮມຕອນນີ້</span>
           </div>
         </div>
 
@@ -82,7 +82,7 @@ export default async function Dashboard() {
         <div className="rounded-xl bg-white p-6 shadow-sm ring-1 ring-gray-100">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-black">Today&apos;s Revenue</p>
+              <p className="text-sm font-medium text-black">ລາຍຮັບວັນນີ້</p>
               <p className="text-3xl font-bold text-black mt-1">₭{todayRevenue.toLocaleString()}</p>
             </div>
             <div className="rounded-full bg-indigo-100 p-3 text-indigo-600">
@@ -90,7 +90,7 @@ export default async function Dashboard() {
             </div>
           </div>
           <div className="mt-4 flex items-center text-sm">
-            <span className="text-black">{todayPayments.length} transactions today</span>
+            <span className="text-black">{todayPayments.length} ລາຍການວັນນີ້</span>
           </div>
         </div>
 

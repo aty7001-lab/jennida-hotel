@@ -63,14 +63,14 @@ export default async function PaymentsPage({ searchParams }: { searchParams: Pro
             />
           </div>
           <select name="status" defaultValue={params.status || ''} className="w-full sm:w-40 border border-slate-300 rounded-md px-3 py-2 text-sm bg-white text-slate-700 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500">
-            <option value="">All Status</option>
-            <option value="COMPLETED">Completed</option>
-            <option value="PENDING">Pending</option>
-            <option value="REFUNDED">Refunded</option>
+            <option value="">ທຸກສະຖານະ</option>
+            <option value="COMPLETED">ສຳເລັດ</option>
+            <option value="PENDING">ລໍຖ້າ</option>
+            <option value="REFUNDED">ຄືນເງິນ</option>
           </select>
           <button type="submit" className="w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700 transition-colors">
             <Filter size={16} />
-            Apply
+            ກອງຂໍ້ມູນ
           </button>
         </form>
         <div className="overflow-x-auto">
@@ -89,14 +89,14 @@ export default async function PaymentsPage({ searchParams }: { searchParams: Pro
               {payments.length === 0 ? (
                 <tr>
                   <td colSpan={6} className="px-6 py-8 text-center text-slate-500 text-sm">
-                    No payments found.
+                    ຍັງບໍ່ມີຂໍ້ມູນການຊຳລະ
                   </td>
                 </tr>
               ) : payments.map((payment) => (
                 <tr key={payment.id} className="hover:bg-slate-50/80 transition-colors">
                   <td className="px-6 py-4 text-sm text-slate-900 font-medium">{payment.id.substring(0, 8)}</td>
-                  <td className="px-6 py-4 text-sm text-slate-700">{payment.reservation?.guest?.name || 'Unknown'}</td>
-                  <td className="px-6 py-4 text-sm text-slate-700">#{payment.reservation?.room?.number || 'N/A'}</td>
+                  <td className="px-6 py-4 text-sm text-slate-700">{payment.reservation?.guest?.name || 'ບໍ່ຮູ້'}</td>
+                  <td className="px-6 py-4 text-sm text-slate-700">#{payment.reservation?.room?.number || 'ບໍ່ມີ'}</td>
                   <td className="px-6 py-4 text-sm text-slate-500">{payment.createdAt.toLocaleDateString()}</td>
                   <td className="px-6 py-4 text-sm text-slate-900 font-medium">₭{payment.amount.toLocaleString()}</td>
                   <td className="px-6 py-4 text-right">
@@ -116,7 +116,7 @@ export default async function PaymentsPage({ searchParams }: { searchParams: Pro
           </table>
         </div>
         <div className="px-6 py-4 border-t border-slate-200 bg-slate-50/50">
-          <span className="text-sm text-slate-500">Showing <span className="font-medium text-slate-900">{payments.length}</span> of <span className="font-medium text-slate-900">{allPayments.length}</span> results</span>
+          <span className="text-sm text-slate-500">ສະແດງ <span className="font-medium text-slate-900">{payments.length}</span> ຈາກ <span className="font-medium text-slate-900">{allPayments.length}</span> ລາຍການ</span>
         </div>
       </div>
     </div>

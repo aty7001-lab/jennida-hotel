@@ -20,7 +20,7 @@ export function MarkCleanButton({ roomId }: { roomId: string }) {
       <button 
         onClick={() => setIsOpen(true)}
         className="p-1.5 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 rounded transition-colors"
-        title="Mark as Cleaned"
+        title="ໝາຍວ່າທຳຄວາມສະອາດແລ້ວ"
       >
         <Sparkles size={16} />
       </button>
@@ -28,9 +28,9 @@ export function MarkCleanButton({ roomId }: { roomId: string }) {
         isOpen={isOpen}
         onClose={() => setIsOpen(false)}
         onConfirm={handleConfirm}
-        title="Mark Room as Cleaned"
-        message="Are you sure this room has been cleaned and is ready for the next guest? The status will change to AVAILABLE."
-        confirmText="Yes, Mark as Cleaned"
+        title="ໝາຍຫ້ອງວ່າສະອາດແລ້ວ"
+        message="ທ່ານແນ່ໃຈບໍ່ວ່າຫ້ອງນີ້ສະອາດແລ້ວ ແລະ ພ້ອມຮັບແຂກໃໝ່? ສະຖານະຈະຖືກປ່ຽນເປັນ ວ່າງ."
+        confirmText="ແມ່ນ, ຢືນຢັນວ່າສະອາດແລ້ວ"
         type="success"
       />
     </>

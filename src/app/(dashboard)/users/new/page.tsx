@@ -39,7 +39,7 @@ export default async function NewUserPage() {
 
             <div>
               <label className="block text-sm font-semibold text-slate-700 mb-1.5">
-                Email <span className="text-red-500">*</span>
+                ອີເມວ <span className="text-red-500">*</span>
               </label>
               <input name="email" type="email" required className={inputClass} placeholder="user@jennida.com" />
             </div>
@@ -52,7 +52,7 @@ export default async function NewUserPage() {
             </div>
 
             <div>
-              <label className="block text-sm font-semibold text-slate-700 mb-1.5">Role / ສິດໃຊ້ງານ</label>
+              <label className="block text-sm font-semibold text-slate-700 mb-1.5">ສິດໃຊ້ງານ</label>
               <select name="role" className={inputClass}>
                 <option value="STAFF">STAFF — ພະນັກງານທົ່ວໄປ</option>
                 <option value="MANAGER">MANAGER — ຜູ້ຈັດການສາຂາ</option>

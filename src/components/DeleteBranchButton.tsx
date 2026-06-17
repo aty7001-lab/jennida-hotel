@@ -21,7 +21,7 @@ export function DeleteBranchButton({ branchId }: { branchId: string }) {
       <button
         onClick={() => setIsOpen(true)}
         className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors"
-        title="Delete Branch"
+        title="ລົບສາຂາ"
       >
         <Trash2 size={16} />
       </button>

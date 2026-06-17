@@ -23,20 +23,20 @@ export default async function Sidebar() {
       </div>
       
       <nav className="flex-1 space-y-1.5 py-6 px-4 overflow-y-auto scrollbar-hide">
-        <div className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-4 px-3">Main Menu</div>
+        <div className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-4 px-3">ເມນູຫຼັກ</div>
         <SidebarItem href="/" icon={<Home size={18} />} label={dict.sidebar.dashboard} />
         <SidebarItem href="/calendar" icon={<Calendar size={18} />} label={dict.sidebar.calendar} />
         <SidebarItem href="/rooms" icon={<Bed size={18} />} label={dict.sidebar.rooms} />
-        <SidebarItem href="/bookings" icon={<ClipboardList size={18} />} label="Bookings" />
-        <SidebarItem href="/bookings/new" icon={<PlusCircle size={18} />} label="New Booking" />
-        <SidebarItem href="/guests" icon={<Users size={18} />} label="Guests" />
+        <SidebarItem href="/bookings" icon={<ClipboardList size={18} />} label="ການຈອງ" />
+        <SidebarItem href="/bookings/new" icon={<PlusCircle size={18} />} label="ຈອງໃໝ່" />
+        <SidebarItem href="/guests" icon={<Users size={18} />} label="ຂໍ້ມູນແຂກ" />
         <SidebarItem href="/payments" icon={<CreditCard size={18} />} label={dict.sidebar.payments} />
 
         {isAdmin && (
           <>
-            <div className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2 mt-6 px-3">Admin</div>
-            <SidebarItem href="/branches" icon={<Building2 size={18} />} label="ສາຂາ / Branches" />
-            <SidebarItem href="/users" icon={<Users size={18} />} label="ຜູ້ໃຊ້ / Users" />
+            <div className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2 mt-6 px-3">ຜູ້ດູແລ</div>
+            <SidebarItem href="/branches" icon={<Building2 size={18} />} label="ສາຂາ" />
+            <SidebarItem href="/users" icon={<Users size={18} />} label="ຜູ້ໃຊ້" />
           </>
         )}
 
@@ -47,8 +47,8 @@ export default async function Sidebar() {
       </nav>
 
       <div className="border-t border-slate-800/50 p-4 space-y-1.5">
-        <div className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-4 px-3">Preferences</div>
-        <SidebarItem href="/settings" icon={<Settings size={18} />} label="Settings" />
+        <div className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-4 px-3">ການຕັ້ງຄ່າ</div>
+        <SidebarItem href="/settings" icon={<Settings size={18} />} label="ການຕັ້ງຄ່າ" />
         <LanguageSwitcher currentLang={currentLang} />
         <SidebarItem href="/api/auth/signout" icon={<LogOut size={18} />} label={dict.sidebar.logout} variant="danger" />
       </div>

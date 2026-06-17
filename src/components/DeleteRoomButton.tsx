@@ -12,7 +12,7 @@ export function DeleteRoomButton({ roomId }: { roomId: string }) {
     try {
       await deleteRoom(roomId);
     } catch (err) {
-      alert("Failed to delete room. It might be linked to existing reservations.");
+      alert("ລົບຫ້ອງບໍ່ໄດ້ — ອາດມີການຈອງຜູກຢູ່ກັບຫ້ອງນີ້.");
     }
   };
 
@@ -21,7 +21,7 @@ export function DeleteRoomButton({ roomId }: { roomId: string }) {
       <button 
         onClick={() => setIsOpen(true)}
         className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors"
-        title="Delete Room"
+        title="ລົບຫ້ອງ"
       >
         <Trash2 size={16} />
       </button>
@@ -29,9 +29,9 @@ export function DeleteRoomButton({ roomId }: { roomId: string }) {
         isOpen={isOpen}
         onClose={() => setIsOpen(false)}
         onConfirm={handleDelete}
-        title="Delete Room"
-        message="Are you sure you want to delete this room? This action cannot be undone and will fail if the room has existing reservations."
-        confirmText="Yes, Delete Room"
+        title="ລົບຫ້ອງ"
+        message="ທ່ານແນ່ໃຈບໍ່ທີ່ຈະລົບຫ້ອງນີ້? ການກະທຳນີ້ບໍ່ສາມາດຍ້ອນກັບໄດ້ ແລະ ຈະລົ້ມເຫຼວຖ້າຫ້ອງມີການຈອງຢູ່."
+        confirmText="ແມ່ນ, ລົບຫ້ອງ"
         type="danger"
       />
     </>
