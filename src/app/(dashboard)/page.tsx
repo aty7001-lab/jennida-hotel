@@ -2,16 +2,24 @@ import { Users, Bed, CreditCard, TrendingUp } from 'lucide-react';
 import { getRoomSummaryByBranch } from '@/actions/rooms';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import { getActiveBranchId } from '@/lib/active-branch';
 import prisma from '@/lib/prisma';
 import ExportButtons from '@/components/ExportButtons';
 
 export default async function Dashboard() {
   const session = await getServerSession(authOptions);
-  const roomSummary = await getRoomSummaryByBranch();
+  const isStaff = session?.user?.role === "STAFF";
+  const userBranchId = session?.user?.branchId;
+  const cookieBranchId = await getActiveBranchId();
+  const activeBranchId = isStaff ? userBranchId : cookieBranchId;
+
+  const roomSummary = await getRoomSummaryByBranch(activeBranchId);
+
+  const branchWhere = activeBranchId ? { room: { branchId: activeBranchId } } : {};
 
   // Real checked-in guests count
   const checkedInCount = await prisma.reservation.count({
-    where: { status: "CHECKED_IN" },
+    where: { status: "CHECKED_IN", ...branchWhere },
   });
 
   // Real today's revenue
@@ -24,6 +32,7 @@ export default async function Dashboard() {
     where: {
       status: "COMPLETED",
       createdAt: { gte: todayStart, lte: todayEnd },
+      ...(activeBranchId ? { reservation: { room: { branchId: activeBranchId } } } : {}),
     },
   });
   const todayRevenue = todayPayments.reduce((sum, p) => sum + p.amount, 0);

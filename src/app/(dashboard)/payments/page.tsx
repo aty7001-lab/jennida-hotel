@@ -1,11 +1,19 @@
 import { Download, Search, Filter } from 'lucide-react';
 import { getDictionary } from "@/lib/dictionary";
 import { getPayments } from "@/actions/reports";
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { getActiveBranchId } from "@/lib/active-branch";
 
 export default async function PaymentsPage({ searchParams }: { searchParams: Promise<{ q?: string; status?: string }> }) {
   const params = await searchParams;
   const dict = await getDictionary();
-  const allPayments = await getPayments();
+  const session = await getServerSession(authOptions);
+  const isStaff = session?.user?.role === "STAFF";
+  const userBranchId = session?.user?.branchId;
+  const cookieBranchId = await getActiveBranchId();
+  const activeBranchId = isStaff ? userBranchId : cookieBranchId;
+  const allPayments = await getPayments(activeBranchId);
 
   // Search filter
   let payments = allPayments;

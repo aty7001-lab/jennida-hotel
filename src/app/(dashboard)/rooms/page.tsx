@@ -4,6 +4,7 @@ import { getRoomsByBranch } from '@/actions/rooms';
 import { getAllBranches } from '@/actions/branches';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import { getActiveBranchId } from '@/lib/active-branch';
 import { DeleteRoomButton } from '@/components/DeleteRoomButton';
 import { MarkCleanButton } from '@/components/MarkCleanButton';
 import RoomFilters from '@/components/RoomFilters';
@@ -22,7 +23,9 @@ export default async function RoomsPage({ searchParams }: { searchParams: Promis
   const isStaff = session?.user?.role === 'STAFF';
   const userBranchId = session?.user?.branchId;
 
-  const branchFilter = isStaff ? userBranchId : params.branch || undefined;
+  const cookieBranchId = await getActiveBranchId();
+  // URL param overrides cookie (for RoomFilters dropdown); cookie is the global default
+  const branchFilter = isStaff ? userBranchId : params.branch || cookieBranchId || undefined;
   const allRooms = await getRoomsByBranch(branchFilter);
   const branches = await getAllBranches();
 

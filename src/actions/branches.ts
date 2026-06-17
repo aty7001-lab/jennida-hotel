@@ -3,6 +3,17 @@
 import prisma from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { cookies } from "next/headers";
+
+export async function setActiveBranch(branchId: string) {
+  const store = await cookies();
+  if (branchId) {
+    store.set("active_branch", branchId, { path: "/", maxAge: 60 * 60 * 24 * 30 });
+  } else {
+    store.delete("active_branch");
+  }
+  revalidatePath("/", "layout");
+}
 
 export async function getAllBranches() {
   try {

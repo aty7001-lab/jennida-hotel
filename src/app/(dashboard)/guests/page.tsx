@@ -1,10 +1,22 @@
 import prisma from "@/lib/prisma";
-import { Search, Phone, Mail, UserPlus } from 'lucide-react';
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { getActiveBranchId } from "@/lib/active-branch";
 
 export default async function GuestsPage() {
+  const session = await getServerSession(authOptions);
+  const isStaff = session?.user?.role === "STAFF";
+  const userBranchId = session?.user?.branchId;
+  const cookieBranchId = await getActiveBranchId();
+  const activeBranchId = isStaff ? userBranchId : cookieBranchId;
+
   const guests = await prisma.guest.findMany({
+    where: activeBranchId
+      ? { reservations: { some: { room: { branchId: activeBranchId } } } }
+      : undefined,
     include: {
       reservations: {
+        where: activeBranchId ? { room: { branchId: activeBranchId } } : undefined,
         include: { room: true },
         orderBy: { createdAt: "desc" },
         take: 1,

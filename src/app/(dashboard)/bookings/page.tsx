@@ -1,9 +1,9 @@
 import Link from "next/link";
 import { Plus } from "lucide-react";
 import { getReservations } from "@/actions/reservations";
-import { getAllBranches } from "@/actions/branches";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { getActiveBranchId } from "@/lib/active-branch";
 import { CheckInButton, CheckOutButton, CancelButton } from "./ReservationActions";
 import BookingFilters from "./BookingFilters";
 
@@ -33,7 +33,7 @@ const sourceLabel: Record<string, string> = {
 export default async function BookingsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ branch?: string; status?: string }>;
+  searchParams: Promise<{ status?: string }>;
 }) {
   const params = await searchParams;
   const session = await getServerSession(authOptions);
@@ -41,20 +41,16 @@ export default async function BookingsPage({
   const isStaff = session?.user?.role === "STAFF";
   const userBranchId = session?.user?.branchId;
 
-  // STAFF sees only their branch; Admin/Manager use the URL param
-  const activeBranchId = isStaff ? userBranchId : params.branch || undefined;
+  // STAFF → own branch; Admin/Manager → cookie-based active branch
+  const cookieBranchId = await getActiveBranchId();
+  const activeBranchId = isStaff ? userBranchId : cookieBranchId;
 
-  const [allReservations, branches] = await Promise.all([
-    getReservations(activeBranchId),
-    isAdmin ? getAllBranches() : Promise.resolve([]),
-  ]);
+  const allReservations = await getReservations(activeBranchId);
 
-  // Status filter (client-side since it's cheap)
+  // Status filter
   const reservations = params.status
     ? allReservations.filter((r) => r.status === params.status)
     : allReservations;
-
-  const selectedBranch = branches.find((b) => b.id === params.branch);
 
   return (
     <div className="space-y-6">
@@ -62,11 +58,7 @@ export default async function BookingsPage({
         <div>
           <h1 className="text-2xl font-bold text-slate-900">ການຈອງຫ້ອງ</h1>
           <p className="text-sm text-slate-500 mt-1">
-            {isStaff
-              ? "ການຈອງຂອງສາຂາທ່ານ"
-              : selectedBranch
-              ? `ສາຂາ: ${selectedBranch.name}`
-              : "ທຸກສາຂາ"}
+            {isStaff ? "ສາຂາຂອງທ່ານ" : activeBranchId ? "ສາຂາທີ່ເລືອກ" : "ທຸກສາຂາ"}
           </p>
         </div>
         <Link
@@ -79,13 +71,8 @@ export default async function BookingsPage({
       </div>
 
       <div className="bg-white rounded-md shadow-sm border border-slate-200 overflow-hidden">
-        {/* Filter bar */}
-        <BookingFilters
-          branches={branches}
-          isAdmin={isAdmin}
-          defaultBranch={params.branch || ""}
-          defaultStatus={params.status || ""}
-        />
+        {/* Status filter only — branch is selected globally in sidebar */}
+        <BookingFilters defaultStatus={params.status || ""} />
 
         {/* Table */}
         <div className="overflow-x-auto">

@@ -4,12 +4,19 @@ import { getDictionary, getLocale } from '@/lib/dictionary';
 import { LanguageSwitcher } from './LanguageSwitcher';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import { getAllBranches } from '@/actions/branches';
+import { getActiveBranchId } from '@/lib/active-branch';
+import BranchSelector from './BranchSelector';
 
 export default async function Sidebar() {
   const dict = await getDictionary();
   const currentLang = await getLocale();
   const session = await getServerSession(authOptions);
   const isAdmin = session?.user?.role === 'ADMIN';
+
+  const [branches, activeBranchId] = isAdmin
+    ? await Promise.all([getAllBranches(), getActiveBranchId()])
+    : [[], undefined];
 
   return (
     <div className="flex h-screen w-64 flex-col bg-slate-900 text-slate-50 border-r border-slate-800 shadow-xl z-10 transition-all duration-300">
@@ -23,6 +30,9 @@ export default async function Sidebar() {
       </div>
       
       <nav className="flex-1 space-y-1.5 py-6 px-4 overflow-y-auto scrollbar-hide">
+        {isAdmin && (
+          <BranchSelector branches={branches} currentBranchId={activeBranchId ?? ""} />
+        )}
         <div className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-4 px-3">ເມນູຫຼັກ</div>
         <SidebarItem href="/" icon={<Home size={18} />} label={dict.sidebar.dashboard} />
         <SidebarItem href="/calendar" icon={<Calendar size={18} />} label={dict.sidebar.calendar} />

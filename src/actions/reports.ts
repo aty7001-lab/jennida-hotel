@@ -175,8 +175,9 @@ export async function getOccupancyReport(startDateStr: string, endDateStr: strin
   };
 }
 
-export async function getPayments() {
+export async function getPayments(branchId?: string) {
   return await prisma.payment.findMany({
+    where: branchId ? { reservation: { room: { branchId } } } : undefined,
     orderBy: { createdAt: "desc" },
     include: {
       reservation: {
