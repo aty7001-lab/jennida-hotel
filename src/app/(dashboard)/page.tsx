@@ -75,7 +75,7 @@ export default async function Dashboard() {
         <div className="rounded-xl bg-white p-6 shadow-sm ring-1 ring-gray-100">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-black">ແຂກທີ່ Check-in ແລ້ວ</p>
+              <p className="text-sm font-medium text-black">ແຂກທີ່ເຊັກອິນແລ້ວ</p>
               <p className="text-3xl font-bold text-black mt-1">{checkedInCount}</p>
             </div>
             <div className="rounded-full bg-blue-100 p-3 text-blue-600">

@@ -200,7 +200,7 @@ export default function NewBookingForm({
             <div>
               <label className="block text-sm font-semibold text-slate-700 mb-1.5">ຊ່ອງທາງການຈອງ</label>
               <select name="source" required className={inputClass}>
-                <option value="WALK_IN">ໂດຍກົງ (Walk-in)</option>
+                <option value="WALK_IN">ໂດຍກົງ</option>
                 <option value="PHONE">ທາງໂທລະສັບ</option>
                 <option value="OTA_AGODA">ອອນໄລນ໌ - Agoda</option>
                 <option value="OTA_BOOKING">ອອນໄລນ໌ - Booking.com</option>

@@ -20,8 +20,8 @@ export function ConfirmModal({
   onConfirm,
   title,
   message,
-  confirmText = "Confirm",
-  cancelText = "Cancel",
+  confirmText = "ຢືນຢັນ",
+  cancelText = "ຍົກເລີກ",
   type = "info",
 }: ConfirmModalProps) {
   const [isLoading, setIsLoading] = useState(false);

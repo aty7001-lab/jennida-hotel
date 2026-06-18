@@ -8,12 +8,12 @@ const dictionaries = {
 
 export const getDictionary = async () => {
   const cookieStore = await cookies();
-  const locale = cookieStore.get('NEXT_LOCALE')?.value || 'en';
+  const locale = cookieStore.get('NEXT_LOCALE')?.value || 'th';
   const lang = locale === 'th' ? 'th' : 'en';
   return dictionaries[lang]();
 };
 
 export const getLocale = async () => {
   const cookieStore = await cookies();
-  return cookieStore.get('NEXT_LOCALE')?.value || 'en';
+  return cookieStore.get('NEXT_LOCALE')?.value || 'th';
 };
