@@ -66,7 +66,7 @@ export default async function BookingsPage({
           className="bg-indigo-600 text-white px-4 py-2 rounded-md font-medium text-sm shadow-sm hover:bg-indigo-700 transition-colors flex items-center gap-2"
         >
           <Plus size={16} />
-          ຈອງໃໝ່
+          ຈອງຫ້ອງ
         </Link>
       </div>
 
