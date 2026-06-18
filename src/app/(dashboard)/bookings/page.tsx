@@ -1,10 +1,11 @@
 import Link from "next/link";
 import { Plus } from "lucide-react";
 import { getReservations } from "@/actions/reservations";
+import { getRoomsByBranch } from "@/actions/rooms";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { getActiveBranchId } from "@/lib/active-branch";
-import { CheckInButton, CheckOutButton, CancelButton } from "./ReservationActions";
+import { CheckInButton, CheckOutButton, CancelButton, MoveRoomButton } from "./ReservationActions";
 import BookingFilters from "./BookingFilters";
 
 const statusLabel: Record<string, string> = {
@@ -45,7 +46,11 @@ export default async function BookingsPage({
   const cookieBranchId = await getActiveBranchId();
   const activeBranchId = isStaff ? userBranchId : cookieBranchId;
 
-  const allReservations = await getReservations(activeBranchId);
+  const [allReservations, allRooms] = await Promise.all([
+    getReservations(activeBranchId),
+    getRoomsByBranch(activeBranchId),
+  ]);
+  const availableRooms = allRooms.filter((r) => r.status === "AVAILABLE");
 
   // Status filter
   const reservations = params.status
@@ -123,7 +128,17 @@ export default async function BookingsPage({
                           <CancelButton reservationId={r.id} />
                         </>
                       )}
-                      {r.status === "CHECKED_IN" && <CheckOutButton reservationId={r.id} />}
+                      {r.status === "CHECKED_IN" && (
+                        <>
+                          <MoveRoomButton
+                            reservationId={r.id}
+                            currentRoomId={r.room.id}
+                            availableRooms={availableRooms}
+                          />
+                          <CheckOutButton reservationId={r.id} />
+                          <CancelButton reservationId={r.id} isCheckedIn />
+                        </>
+                      )}
                     </td>
                   </tr>
                 ))
