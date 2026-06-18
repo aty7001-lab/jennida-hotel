@@ -98,17 +98,13 @@ export async function getFinancialReport(startDateStr: string, endDateStr: strin
     return acc;
   }, {});
 
-  // Get all payments in period for method breakdown
-  const payments = await prisma.payment.findMany({
-    where: {
-      status: "COMPLETED",
-      createdAt: { gte: start, lte: end },
-      reservation: branchId ? { room: { branchId } } : undefined,
-    },
-  });
-
-  const paymentMethods = payments.reduce((acc: any, p) => {
-    acc[p.method] = (acc[p.method] || 0) + p.amount;
+  // Get all payments from reservations in period (based on reservation creation)
+  const paymentMethods = reservations.reduce((acc: any, r) => {
+    r.payments.forEach((p) => {
+      if (p.status === "COMPLETED") {
+        acc[p.method] = (acc[p.method] || 0) + p.amount;
+      }
+    });
     return acc;
   }, {});
 
