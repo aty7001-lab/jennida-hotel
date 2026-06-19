@@ -171,9 +171,19 @@ export async function getOccupancyReport(startDateStr: string, endDateStr: strin
   };
 }
 
-export async function getPayments(branchId?: string) {
+export async function getPayments(branchId?: string, startDate?: string, endDate?: string) {
   return await prisma.payment.findMany({
-    where: branchId ? { reservation: { room: { branchId } } } : undefined,
+    where: {
+      ...(branchId ? { reservation: { room: { branchId } } } : {}),
+      ...(startDate || endDate
+        ? {
+            createdAt: {
+              ...(startDate ? { gte: new Date(startDate) } : {}),
+              ...(endDate ? { lte: new Date(endDate + "T23:59:59.999Z") } : {}),
+            },
+          }
+        : {}),
+    },
     orderBy: { createdAt: "desc" },
     include: {
       reservation: {
