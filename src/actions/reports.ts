@@ -102,6 +102,18 @@ export async function getFinancialReport(startDateStr: string, endDateStr: strin
     return acc;
   }, {});
 
+  // Refunds issued in this period (cancellations, early checkouts)
+  const refundsInPeriod = await prisma.payment.findMany({
+    where: {
+      status: "REFUNDED",
+      createdAt: { gte: start, lte: end },
+      ...(branchId ? { reservation: { room: { branchId } } } : {}),
+    },
+    select: { amount: true },
+  });
+  const totalRefunds = refundsInPeriod.reduce((acc, p) => acc + p.amount, 0);
+  const netRevenue = totalRevenue - totalRefunds;
+
   // Reservations for count, ADR, RevPAR, and per-booking drilldown
   const reservations = await prisma.reservation.findMany({
     where: {
@@ -144,6 +156,8 @@ export async function getFinancialReport(startDateStr: string, endDateStr: strin
 
   return {
     totalRevenue,
+    totalRefunds,
+    netRevenue,
     ADR,
     RevPAR,
     sourceBreakdown,

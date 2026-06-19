@@ -41,18 +41,31 @@ export async function cancelReservation(reservationId: string) {
   });
   if (!reservation) throw new Error("ບໍ່ພົບການຈອງ");
 
-  const credit = reservation.payments
-    .filter((p) => p.status === "COMPLETED")
-    .reduce((sum, p) => sum + p.amount, 0);
+  const completedPayments = reservation.payments.filter((p) => p.status === "COMPLETED");
+  const credit = completedPayments.reduce((sum, p) => sum + p.amount, 0);
+  const refundMethod = completedPayments.at(-1)?.method ?? "CASH";
 
-  await prisma.reservation.update({
-    where: { id: reservationId },
-    data: { status: "CANCELLED", credit },
-  });
-
-  await prisma.room.update({
-    where: { id: reservation.roomId },
-    data: { status: reservation.status === "CHECKED_IN" ? "CLEANING" : "AVAILABLE" },
+  await prisma.$transaction(async (tx) => {
+    await tx.reservation.update({
+      where: { id: reservationId },
+      data: { status: "CANCELLED", credit },
+    });
+    await tx.room.update({
+      where: { id: reservation.roomId },
+      data: { status: reservation.status === "CHECKED_IN" ? "CLEANING" : "AVAILABLE" },
+    });
+    // Create REFUNDED payment record so credit history is stored in DB
+    if (credit > 0) {
+      await tx.payment.create({
+        data: {
+          reservationId,
+          amount: credit,
+          method: refundMethod,
+          status: "REFUNDED",
+          note: "ຄ່າຄືນ (ຍົກເລີກການຈອງ)",
+        },
+      });
+    }
   });
 
   revalidateAll();
@@ -114,12 +127,26 @@ export async function earlyCheckout(reservationId: string) {
   const newTotal = Math.max(alreadyPaid, reservation.totalAmount + priceDelta);
   const credit = alreadyPaid > newTotal ? alreadyPaid - newTotal : 0;
 
+  const lastCompleted = reservation.payments.filter(p => p.status === "COMPLETED").at(-1);
+
   await prisma.$transaction(async (tx) => {
     await tx.reservation.update({
       where: { id: reservationId },
       data: { checkOut: today, totalAmount: newTotal, credit, status: "CHECKED_OUT" },
     });
     await tx.room.update({ where: { id: reservation.roomId }, data: { status: "CLEANING" } });
+    // Record the credit refund as a REFUNDED payment for audit trail
+    if (credit > 0) {
+      await tx.payment.create({
+        data: {
+          reservationId,
+          amount: credit,
+          method: lastCompleted?.method ?? "CASH",
+          status: "REFUNDED",
+          note: "ຄ່າຄືນ (ອອກກ່ອນກຳນົດ)",
+        },
+      });
+    }
   });
 
   revalidateAll();

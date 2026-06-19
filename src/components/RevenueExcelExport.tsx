@@ -29,6 +29,8 @@ interface BookingDetail {
 
 interface FinancialData {
   totalRevenue: number;
+  totalRefunds?: number;
+  netRevenue?: number;
   ADR: number;
   RevPAR: number;
   sourceBreakdown: Record<string, number>;
@@ -308,13 +310,20 @@ export default function RevenueExcelExport({
 ══════════════════════════════════════════════════════════════-->
 <table style="width:780px;margin-top:0;border:1px solid ${GRAY3};border-top:none">
   <tr>
-    <!-- Revenue -->
+    <!-- Revenue received -->
     <td style="width:20%;background:${GREEN2};border-right:1px solid ${GRAY3};
       padding:14px 16px;vertical-align:top">
       <div style="font-size:9px;font-weight:700;color:${GREEN};text-transform:uppercase;
-        letter-spacing:0.8px;margin-bottom:4px">ລາຍຮັບລວມ</div>
+        letter-spacing:0.8px;margin-bottom:4px">ຮັບເງິນລວມ</div>
       <div style="font-size:18px;font-weight:800;color:${GREEN}">₭ ${fmt(financialData.totalRevenue)}</div>
-      <div style="font-size:9px;color:${GREEN};margin-top:2px;opacity:0.8">Total Revenue</div>
+      <div style="font-size:9px;color:${GREEN};margin-top:2px;opacity:0.8">Gross Revenue</div>
+      ${(financialData.totalRefunds || 0) > 0 ? `
+      <div style="margin-top:6px;font-size:9px;color:${RED};font-weight:600">
+        ຄືນເງິນ: (₭ ${fmt(financialData.totalRefunds || 0)})
+      </div>
+      <div style="margin-top:2px;font-size:10px;font-weight:800;color:${GREEN}">
+        ສຸດທິ: ₭ ${fmt(financialData.netRevenue || 0)}
+      </div>` : ""}
     </td>
     <!-- Expenses -->
     <td style="width:20%;background:${RED2};border-right:1px solid ${GRAY3};

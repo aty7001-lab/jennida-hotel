@@ -98,7 +98,7 @@ export default async function RevenueReportPage({
   ]);
 
   const totalExpenses = expenses.reduce((sum, e) => sum + e.amount, 0);
-  const netProfit = financialData.totalRevenue - totalExpenses;
+  const netProfit = financialData.netRevenue - totalExpenses;
 
   return (
     <>
@@ -184,9 +184,13 @@ export default async function RevenueReportPage({
             </p>
 
             {/* Summary cards */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <MetricCard title="ລາຍຮັບທັງໝົດ" value={`₭${financialData.totalRevenue.toLocaleString()}`} icon={Wallet} color="text-emerald-600" bg="bg-emerald-50" />
-              <MetricCard title="ລາຍຈ່າຍທັງໝົດ" value={`₭${totalExpenses.toLocaleString()}`} icon={TrendingDown} color="text-rose-600" bg="bg-rose-50" />
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <MetricCard title="ຮັບເງິນລວມ" value={`₭${financialData.totalRevenue.toLocaleString()}`} icon={Wallet} color="text-emerald-600" bg="bg-emerald-50" sub="COMPLETED payments" />
+              {financialData.totalRefunds > 0 && (
+                <MetricCard title="ຄືນເງິນ" value={`₭${financialData.totalRefunds.toLocaleString()}`} icon={ArrowRightLeft} color="text-rose-500" bg="bg-rose-50" sub="REFUNDED" />
+              )}
+              <MetricCard title="ລາຍຮັບສຸດທິ" value={`₭${financialData.netRevenue.toLocaleString()}`} icon={TrendingUp} color="text-blue-600" bg="bg-blue-50" sub="ຫຼັງຄືນເງິນ" />
+              <MetricCard title="ລາຍຈ່າຍ" value={`₭${totalExpenses.toLocaleString()}`} icon={TrendingDown} color="text-rose-600" bg="bg-rose-50" />
               <MetricCard title="ກຳໄລສຸດທິ" value={`₭${netProfit.toLocaleString()}`} icon={Scale} color={netProfit >= 0 ? "text-indigo-600" : "text-orange-600"} bg={netProfit >= 0 ? "bg-indigo-50" : "bg-orange-50"} />
             </div>
 
@@ -393,12 +397,14 @@ function MetricCard({
   icon: Icon,
   color,
   bg,
+  sub,
 }: {
   title: string;
   value: string | number;
   icon: any;
   color: string;
   bg: string;
+  sub?: string;
 }) {
   return (
     <div className="p-5 rounded-xl border border-slate-200 bg-white shadow-sm flex items-start gap-4">
@@ -408,6 +414,7 @@ function MetricCard({
       <div>
         <p className="text-xs font-medium text-slate-500 uppercase tracking-wider mb-1">{title}</p>
         <p className="text-2xl font-bold text-slate-900">{value}</p>
+        {sub && <p className="text-[10px] text-slate-400 mt-0.5">{sub}</p>}
       </div>
     </div>
   );

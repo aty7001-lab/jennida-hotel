@@ -236,9 +236,11 @@ export default async function BookingDetailPage({
                       <span className={`inline-flex px-2 py-0.5 rounded text-[10px] font-medium border ${
                         p.status === "COMPLETED"
                           ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+                          : p.status === "REFUNDED"
+                          ? "bg-rose-50 text-rose-700 border-rose-200"
                           : "bg-slate-50 text-slate-500 border-slate-200"
                       }`}>
-                        {p.status === "COMPLETED" ? "ສຳເລັດ" : p.status}
+                        {p.status === "COMPLETED" ? "ສຳເລັດ" : p.status === "REFUNDED" ? "ຄືນເງິນ" : p.status}
                       </span>
                     </td>
                   </tr>
