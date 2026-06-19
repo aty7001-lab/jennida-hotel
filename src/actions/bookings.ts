@@ -4,7 +4,8 @@ import prisma from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
-export async function createBooking(formData: FormData) {
+export async function createBooking(bookingType: "immediate" | "advance", formData: FormData) {
+  const isImmediate = bookingType === "immediate";
   try {
     const guestName = formData.get("guestName") as string;
     const guestPhone = formData.get("phone") as string;
@@ -75,7 +76,7 @@ export async function createBooking(formData: FormData) {
               totalAmount: room.price * nights,
               deposit: 0,
               source: source,
-              status: "CONFIRMED",
+              status: isImmediate ? "CHECKED_IN" : "CONFIRMED",
             },
           })
         )
@@ -93,15 +94,17 @@ export async function createBooking(formData: FormData) {
         });
       }
 
-      // 5. Update all room statuses to OCCUPIED
-      await Promise.all(
-        roomIds.map((roomId) =>
-          tx.room.update({
-            where: { id: roomId },
-            data: { status: "OCCUPIED" },
-          })
-        )
-      );
+      // 5. Update room statuses — only for immediate check-in
+      if (isImmediate) {
+        await Promise.all(
+          roomIds.map((roomId) =>
+            tx.room.update({
+              where: { id: roomId },
+              data: { status: "OCCUPIED" },
+            })
+          )
+        );
+      }
     });
 
     revalidatePath("/rooms");
@@ -113,5 +116,5 @@ export async function createBooking(formData: FormData) {
   }
 
   // Redirect outside of try/catch to avoid Next.js redirect error being caught
-  redirect("/rooms");
+  redirect("/bookings");
 }

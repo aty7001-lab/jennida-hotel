@@ -26,7 +26,12 @@ export default async function NewBookingPage() {
       </div>
 
       <div className="bg-white rounded-md shadow-sm border border-slate-200 overflow-hidden">
-        <NewBookingForm rooms={availableRooms} dict={dict} action={createBooking} />
+        <NewBookingForm
+          rooms={availableRooms}
+          dict={dict}
+          createImmediateBooking={createBooking.bind(null, "immediate")}
+          createAdvanceBooking={createBooking.bind(null, "advance")}
+        />
       </div>
     </div>
   );

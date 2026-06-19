@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { CalendarDays, Banknote, UserCircle, Check } from "lucide-react";
 
 type Room = {
@@ -28,11 +28,13 @@ type Dict = {
 export default function NewBookingForm({
   rooms,
   dict,
-  action,
+  createImmediateBooking,
+  createAdvanceBooking,
 }: {
   rooms: Room[];
   dict: Dict;
-  action: (formData: FormData) => Promise<void>;
+  createImmediateBooking: (formData: FormData) => Promise<void>;
+  createAdvanceBooking: (formData: FormData) => Promise<void>;
 }) {
   const [selectedRooms, setSelectedRooms] = useState<Set<string>>(new Set());
   const [checkIn, setCheckIn] = useState("");
@@ -78,8 +80,9 @@ export default function NewBookingForm({
     setCheckOut(e.target.value);
   }
 
-  function handleFormSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
+  const formRef = useRef<HTMLFormElement>(null);
+
+  function handleSubmitWithType(bookingType: "immediate" | "advance") {
     if (selectedRooms.size === 0) {
       alert("ກະລຸນາເລືອກຢ່າງໜ້ອຍຫນຶ່ງຫ້ອງ");
       return;
@@ -93,6 +96,10 @@ export default function NewBookingForm({
       return;
     }
 
+    const form = formRef.current!;
+    const sourceEl = form.elements.namedItem("source") as HTMLInputElement;
+    const paymentMethodEl = form.elements.namedItem("paymentMethod") as HTMLInputElement;
+
     const formData = new FormData();
     formData.append("guestName", guestName);
     formData.append("phone", phone);
@@ -102,10 +109,13 @@ export default function NewBookingForm({
     formData.append("roomIds", JSON.stringify(Array.from(selectedRooms)));
     formData.append("totalAmount", String(calcTotalAmount()));
     formData.append("deposit", deposit || "0");
-    formData.append("source", (e.currentTarget.elements.namedItem("source") as HTMLInputElement)?.value || "WALK_IN");
-    formData.append("paymentMethod", (e.currentTarget.elements.namedItem("paymentMethod") as HTMLInputElement)?.value || "CASH");
-
-    action(formData);
+    formData.append("source", sourceEl?.value || "WALK_IN");
+    formData.append("paymentMethod", paymentMethodEl?.value || "CASH");
+    if (bookingType === "immediate") {
+      createImmediateBooking(formData);
+    } else {
+      createAdvanceBooking(formData);
+    }
   }
 
   const inputClass =
@@ -116,7 +126,7 @@ export default function NewBookingForm({
   const selectedRoomObjects = getSelectedRoomObjects();
 
   return (
-    <form onSubmit={handleFormSubmit}>
+    <form ref={formRef} onSubmit={(e) => e.preventDefault()}>
       <div className="p-6 md:p-8 space-y-10">
         {/* Guest Info */}
         <section>
@@ -303,11 +313,20 @@ export default function NewBookingForm({
           {dict.booking.cancel}
         </a>
         <button
-          type="submit"
+          type="button"
+          onClick={() => handleSubmitWithType("advance")}
+          disabled={selectedRooms.size === 0 || !checkIn || !checkOut || !guestName || !phone}
+          className="px-5 py-2 bg-amber-500 rounded-md text-sm font-medium text-white shadow-sm hover:bg-amber-600 disabled:bg-slate-400 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-amber-400 focus:ring-offset-2 transition-colors"
+        >
+          ຈອງລ່ວງໜ້າ
+        </button>
+        <button
+          type="button"
+          onClick={() => handleSubmitWithType("immediate")}
           disabled={selectedRooms.size === 0 || !checkIn || !checkOut || !guestName || !phone}
           className="px-5 py-2 bg-indigo-600 rounded-md text-sm font-medium text-white shadow-sm hover:bg-indigo-700 disabled:bg-slate-400 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-colors"
         >
-          {dict.booking.confirm}
+          ເຊັກອິນທັນທີ
         </button>
       </div>
     </form>
