@@ -16,12 +16,41 @@ import {
   TrendingDown,
   Scale,
   Tag,
+  ClipboardList,
 } from "lucide-react";
 import AddExpenseForm from "@/components/AddExpenseForm";
 import DeleteExpenseButton from "@/components/DeleteExpenseButton";
 import ExportButtons from "@/components/ExportButtons";
 import RevenueExcelExport from "@/components/RevenueExcelExport";
 import PeriodPicker from "@/components/PeriodPicker";
+
+function fmtDateShort(s: string) {
+  const d = new Date(s);
+  return `${String(d.getDate()).padStart(2,"0")}/${String(d.getMonth()+1).padStart(2,"0")}/${d.getFullYear()}`;
+}
+
+const sourceLabel: Record<string, string> = {
+  WALK_IN:     "ໂດຍກົງ",
+  PHONE:       "ໂທລະສັບ",
+  OTA_AGODA:   "Agoda",
+  OTA_BOOKING: "Booking.com",
+};
+
+const statusLabel: Record<string, string> = {
+  CONFIRMED:   "ຢືນຢັນແລ້ວ",
+  PENDING:     "ລໍຖ້າ",
+  CHECKED_IN:  "ເຊັກອິນແລ້ວ",
+  CHECKED_OUT: "ເຊັກເອົ້າແລ້ວ",
+  CANCELLED:   "ຍົກເລີກ",
+};
+
+const statusStyle: Record<string, string> = {
+  CONFIRMED:   "bg-blue-50 text-blue-700 border-blue-200",
+  PENDING:     "bg-amber-50 text-amber-700 border-amber-200",
+  CHECKED_IN:  "bg-emerald-50 text-emerald-700 border-emerald-200",
+  CHECKED_OUT: "bg-slate-50 text-slate-700 border-slate-200",
+  CANCELLED:   "bg-red-50 text-red-700 border-red-200",
+};
 
 const categoryColor: Record<string, string> = {
   Utilities:   "bg-blue-50 text-blue-700",
@@ -266,6 +295,91 @@ export default async function RevenueReportPage({
                 <p className="px-5 py-6 text-center text-sm text-slate-400">ຍັງບໍ່ມີລາຍຈ່າຍໃນຊ່ວງນີ້</p>
               )}
             </div>
+
+            {/* Booking drilldown */}
+            {financialData.bookingDetails.length > 0 && (
+              <div className="border border-slate-200 rounded-xl overflow-hidden shadow-sm">
+                <div className="px-5 py-4 bg-indigo-50/60 border-b border-indigo-100 flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <ClipboardList size={18} className="text-indigo-600" />
+                    <h3 className="text-sm font-semibold text-slate-800">ລາຍລະອຽດການຈອງ</h3>
+                    <span className="text-xs text-slate-400">(ຕາມວັນທີສ້າງ)</span>
+                  </div>
+                  <span className="text-xs text-slate-500 font-medium">{financialData.bookingDetails.length} ລາຍການ</span>
+                </div>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left text-sm border-collapse whitespace-nowrap">
+                    <thead>
+                      <tr className="bg-slate-50 text-xs text-slate-500 uppercase tracking-wider border-b border-slate-200">
+                        <th className="px-4 py-2.5 font-semibold">ແຂກ</th>
+                        <th className="px-4 py-2.5 font-semibold">ຫ້ອງ</th>
+                        <th className="px-4 py-2.5 font-semibold">ເຊັກອິນ</th>
+                        <th className="px-4 py-2.5 font-semibold">ເຊັກເອົ້າ</th>
+                        <th className="px-4 py-2.5 font-semibold">ຊ່ອງທາງ</th>
+                        <th className="px-4 py-2.5 font-semibold text-right">ຍອດລວມ</th>
+                        <th className="px-4 py-2.5 font-semibold text-right">ຊຳລະແລ້ວ</th>
+                        <th className="px-4 py-2.5 font-semibold text-right">ຍອດຄ້າງ</th>
+                        <th className="px-4 py-2.5 font-semibold text-center">ສະຖານະ</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100">
+                      {financialData.bookingDetails.map((b) => {
+                        const activeBalance = b.balance > 0 &&
+                          b.status !== "CHECKED_OUT" && b.status !== "CANCELLED";
+                        return (
+                          <tr key={b.id} className="hover:bg-slate-50/70 transition-colors">
+                            <td className="px-4 py-2.5 font-medium">
+                              <a href={`/bookings/${b.id}`} className="text-indigo-700 hover:underline">
+                                {b.guestName}
+                              </a>
+                              {b.discountNote && (
+                                <span className="ml-1.5 text-[10px] text-amber-600 bg-amber-50 border border-amber-100 rounded px-1">ສ່ວນລົດ</span>
+                              )}
+                            </td>
+                            <td className="px-4 py-2.5 text-slate-700">
+                              #{b.roomNumber} <span className="text-xs text-slate-400">{b.roomType}</span>
+                            </td>
+                            <td className="px-4 py-2.5 text-slate-500 text-xs">{fmtDateShort(b.checkIn)}</td>
+                            <td className="px-4 py-2.5 text-slate-500 text-xs">{fmtDateShort(b.checkOut)}</td>
+                            <td className="px-4 py-2.5 text-slate-500 text-xs">{sourceLabel[b.source] ?? b.source}</td>
+                            <td className="px-4 py-2.5 text-right text-slate-900 font-medium">₭{b.totalAmount.toLocaleString()}</td>
+                            <td className="px-4 py-2.5 text-right text-emerald-700 font-semibold">₭{b.paidAmount.toLocaleString()}</td>
+                            <td className="px-4 py-2.5 text-right">
+                              {activeBalance ? (
+                                <span className="text-rose-600 font-semibold">₭{b.balance.toLocaleString()}</span>
+                              ) : (
+                                <span className="text-slate-300">—</span>
+                              )}
+                            </td>
+                            <td className="px-4 py-2.5 text-center">
+                              <span className={`inline-flex px-2 py-0.5 rounded text-[10px] font-medium border ${statusStyle[b.status] ?? ""}`}>
+                                {statusLabel[b.status] ?? b.status}
+                              </span>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                    <tfoot>
+                      <tr className="bg-slate-50 border-t-2 border-slate-200">
+                        <td colSpan={5} className="px-4 py-2.5 text-xs font-semibold text-slate-500 uppercase">ລວມ</td>
+                        <td className="px-4 py-2.5 text-right font-bold text-slate-900">
+                          ₭{financialData.bookingDetails.reduce((s, b) => s + b.totalAmount, 0).toLocaleString()}
+                        </td>
+                        <td className="px-4 py-2.5 text-right font-bold text-emerald-700">
+                          ₭{financialData.bookingDetails.reduce((s, b) => s + b.paidAmount, 0).toLocaleString()}
+                        </td>
+                        <td className="px-4 py-2.5 text-right font-bold text-rose-600">
+                          ₭{financialData.bookingDetails.reduce((s, b) => s + b.balance, 0).toLocaleString()}
+                        </td>
+                        <td />
+                      </tr>
+                    </tfoot>
+                  </table>
+                </div>
+              </div>
+            )}
+
           </div>
         </div>
       </div>

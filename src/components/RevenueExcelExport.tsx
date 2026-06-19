@@ -12,6 +12,21 @@ interface Expense {
   branch?: { name: string } | null;
 }
 
+interface BookingDetail {
+  id: string;
+  guestName: string;
+  roomNumber: string;
+  roomType: string;
+  checkIn: string;
+  checkOut: string;
+  source: string;
+  status: string;
+  totalAmount: number;
+  paidAmount: number;
+  balance: number;
+  discountNote?: string | null;
+}
+
 interface FinancialData {
   totalRevenue: number;
   ADR: number;
@@ -19,6 +34,7 @@ interface FinancialData {
   sourceBreakdown: Record<string, number>;
   paymentMethods: Record<string, number>;
   totalBookings: number;
+  bookingDetails?: BookingDetail[];
 }
 
 interface Props {
@@ -59,6 +75,14 @@ const sourceLao: Record<string, string> = {
   PHONE:       "ໂທລະສັບ",
   OTA_AGODA:   "Agoda",
   OTA_BOOKING: "Booking.com",
+};
+
+const statusLao: Record<string, string> = {
+  CONFIRMED:   "ຢືນຢັນແລ້ວ",
+  PENDING:     "ລໍຖ້າ",
+  CHECKED_IN:  "ເຊັກອິນ",
+  CHECKED_OUT: "ເຊັກເອົ້າ",
+  CANCELLED:   "ຍົກເລີກ",
 };
 
 function fmt(n: number): string {
@@ -484,6 +508,54 @@ export default function RevenueExcelExport({
     font-style:italic;border:1px solid ${GRAY3}">ບໍ່ມີລາຍຈ່າຍໃນຊ່ວງນີ້</td></tr>`}
 
 </table>
+
+<!--══════════════════════════════════════════════════════════════
+    BOOKING DRILLDOWN LEDGER
+══════════════════════════════════════════════════════════════-->
+${financialData.bookingDetails && financialData.bookingDetails.length > 0 ? `
+<table style="width:780px;margin-top:20px;border-collapse:collapse">
+  ${sectionBar("D.  ລາຍລະອຽດການຈອງ  (Booking Ledger)", 8)}
+  <tr>
+    ${th("ຊື່ແຂກ", "left", "16%")}
+    ${th("ຫ້ອງ", "left", "8%")}
+    ${th("ເຊັກອິນ", "center", "10%")}
+    ${th("ເຊັກເອົ້າ", "center", "10%")}
+    ${th("ຊ່ອງທາງ", "left", "12%")}
+    ${th("ຍອດລວມ (₭)", "right", "14%")}
+    ${th("ຊຳລະ (₭)", "right", "14%")}
+    ${th("ຄ້າງ / ສະຖານະ", "right", "16%")}
+  </tr>
+  ${financialData.bookingDetails.map((b, i) => {
+    const activeBalance = b.balance > 0 && b.status !== "CHECKED_OUT" && b.status !== "CANCELLED";
+    return `<tr>
+      ${cell(b.guestName + (b.discountNote ? " ★" : ""), { bg: i%2===0?WHITE:GRAY1, bold: false })}
+      ${cell(`#${b.roomNumber}`, { bg: i%2===0?WHITE:GRAY1, align:"center" })}
+      ${cell(fmtDate(b.checkIn), { bg: i%2===0?WHITE:GRAY1, align:"center", noWrap:true, fontSize:10 })}
+      ${cell(fmtDate(b.checkOut), { bg: i%2===0?WHITE:GRAY1, align:"center", noWrap:true, fontSize:10 })}
+      ${cell(sourceLao[b.source]||b.source, { bg: i%2===0?WHITE:GRAY1, fontSize:10 })}
+      ${cell(`₭ ${fmt(b.totalAmount)}`, { bg: i%2===0?WHITE:GRAY1, align:"right", bold:true })}
+      ${cell(`₭ ${fmt(b.paidAmount)}`, { bg: i%2===0?WHITE:GRAY1, align:"right", bold:true, color:GREEN })}
+      ${cell(activeBalance ? `₭ ${fmt(b.balance)}` : statusLao[b.status]||b.status,
+             { bg: i%2===0?WHITE:GRAY1, align:"right", color: activeBalance ? RED : TEXT2, bold: activeBalance })}
+    </tr>`;
+  }).join("")}
+  <tr>
+    <td colspan="5" style="background:${NAVY};color:${WHITE};font-weight:700;font-size:11px;
+      padding:7px 10px;border:1px solid ${NAVY2}">ລວມ  (Total)</td>
+    <td style="background:${NAVY};color:${WHITE};font-weight:700;font-size:11px;text-align:right;
+      padding:7px 10px;border:1px solid ${NAVY2}">
+      ₭ ${fmt(financialData.bookingDetails.reduce((s,b) => s+b.totalAmount, 0))}
+    </td>
+    <td style="background:${NAVY};color:#6EE7B7;font-weight:700;font-size:11px;text-align:right;
+      padding:7px 10px;border:1px solid ${NAVY2}">
+      ₭ ${fmt(financialData.bookingDetails.reduce((s,b) => s+b.paidAmount, 0))}
+    </td>
+    <td style="background:${NAVY};color:#FCA5A5;font-weight:700;font-size:11px;text-align:right;
+      padding:7px 10px;border:1px solid ${NAVY2}">
+      ₭ ${fmt(financialData.bookingDetails.reduce((s,b) => s+b.balance, 0))}
+    </td>
+  </tr>
+</table>` : ""}
 
 <!--══════════════════════════════════════════════════════════════
     SIGNATURE / APPROVAL SECTION

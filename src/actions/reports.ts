@@ -74,43 +74,73 @@ export async function getFinancialReport(startDateStr: string, endDateStr: strin
 
   const whereBranch = branchId ? { room: { branchId } } : {};
 
-  // Get all reservations in period
-  const reservations = await prisma.reservation.findMany({
-    where: {
-      ...whereBranch,
-      createdAt: { gte: start, lte: end },
-      status: { not: "CANCELLED" },
-    },
-    include: { payments: true },
-  });
-
-  const totalRevenue = reservations.reduce((acc, r) => acc + r.totalAmount, 0);
-  const ADR = reservations.length > 0 ? totalRevenue / reservations.length : 0; // Simplified ADR
-
-  // RevPAR = Total Room Revenue / Total Available Rooms
-  const totalRooms = await prisma.room.count({ where: branchId ? { branchId } : {} });
-  const totalAvailableRooms = totalRooms * days;
-  const RevPAR = totalAvailableRooms > 0 ? totalRevenue / totalAvailableRooms : 0;
-
-  // Breakdown by Source
-  const sourceBreakdown = reservations.reduce((acc: any, r) => {
-    acc[r.source] = (acc[r.source] || 0) + r.totalAmount;
-    return acc;
-  }, {});
-
-  // Query payments directly in period — not through reservation filter
+  // Actual revenue = COMPLETED payments received in this period
   const paymentsInPeriod = await prisma.payment.findMany({
     where: {
       status: "COMPLETED",
       createdAt: { gte: start, lte: end },
       ...(branchId ? { reservation: { room: { branchId } } } : {}),
     },
-    select: { method: true, amount: true },
+    select: {
+      method: true,
+      amount: true,
+      reservation: { select: { source: true } },
+    },
   });
-  const paymentMethods = paymentsInPeriod.reduce((acc: any, p) => {
+
+  const totalRevenue = paymentsInPeriod.reduce((acc, p) => acc + p.amount, 0);
+
+  // Source breakdown derived from actual payments (not expected totalAmount)
+  const sourceBreakdown = paymentsInPeriod.reduce((acc: Record<string, number>, p) => {
+    const src = p.reservation.source;
+    acc[src] = (acc[src] || 0) + p.amount;
+    return acc;
+  }, {});
+
+  const paymentMethods = paymentsInPeriod.reduce((acc: Record<string, number>, p) => {
     acc[p.method] = (acc[p.method] || 0) + p.amount;
     return acc;
   }, {});
+
+  // Reservations for count, ADR, RevPAR, and per-booking drilldown
+  const reservations = await prisma.reservation.findMany({
+    where: {
+      ...whereBranch,
+      createdAt: { gte: start, lte: end },
+      status: { not: "CANCELLED" },
+    },
+    include: {
+      payments: { where: { status: "COMPLETED" }, select: { amount: true } },
+      guest: { select: { name: true } },
+      room: { select: { number: true, type: true } },
+    },
+    orderBy: { createdAt: "desc" },
+  });
+
+  const totalBookings = reservations.length;
+  const ADR = totalBookings > 0 ? totalRevenue / totalBookings : 0;
+
+  const totalRooms = await prisma.room.count({ where: branchId ? { branchId } : {} });
+  const totalAvailableRooms = totalRooms * days;
+  const RevPAR = totalAvailableRooms > 0 ? totalRevenue / totalAvailableRooms : 0;
+
+  const bookingDetails = reservations.map((r) => {
+    const paidAmount = r.payments.reduce((s, p) => s + p.amount, 0);
+    return {
+      id: r.id,
+      guestName: r.guest.name,
+      roomNumber: r.room.number,
+      roomType: r.room.type,
+      checkIn: r.checkIn.toISOString(),
+      checkOut: r.checkOut.toISOString(),
+      source: r.source,
+      status: r.status,
+      totalAmount: r.totalAmount,
+      paidAmount,
+      balance: Math.max(0, r.totalAmount - paidAmount),
+      discountNote: r.discountNote ?? null,
+    };
+  });
 
   return {
     totalRevenue,
@@ -118,7 +148,8 @@ export async function getFinancialReport(startDateStr: string, endDateStr: strin
     RevPAR,
     sourceBreakdown,
     paymentMethods,
-    totalBookings: reservations.length,
+    totalBookings,
+    bookingDetails,
   };
 }
 
