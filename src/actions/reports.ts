@@ -114,19 +114,25 @@ export async function getFinancialReport(startDateStr: string, endDateStr: strin
   const totalRefunds = refundsInPeriod.reduce((acc, p) => acc + p.amount, 0);
   const netRevenue = totalRevenue - totalRefunds;
 
-  // Reservations for count, ADR, RevPAR, and per-booking drilldown
+  // Reservations that received at least one COMPLETED payment in this period
+  // (matches revenue calculation — not filtered by reservation.createdAt)
   const reservations = await prisma.reservation.findMany({
     where: {
       ...whereBranch,
-      createdAt: { gte: start, lte: end },
       status: { not: "CANCELLED" },
+      payments: {
+        some: {
+          status: "COMPLETED",
+          createdAt: { gte: start, lte: end },
+        },
+      },
     },
     include: {
       payments: { where: { status: "COMPLETED" }, select: { amount: true } },
       guest: { select: { name: true } },
       room: { select: { number: true, type: true } },
     },
-    orderBy: { createdAt: "desc" },
+    orderBy: { checkIn: "desc" },
   });
 
   const totalBookings = reservations.length;
