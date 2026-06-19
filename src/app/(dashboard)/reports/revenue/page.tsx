@@ -374,7 +374,9 @@ export default async function RevenueReportPage({
                           ₭{financialData.bookingDetails.reduce((s, b) => s + b.paidAmount, 0).toLocaleString()}
                         </td>
                         <td className="px-4 py-2.5 text-right font-bold text-rose-600">
-                          ₭{financialData.bookingDetails.reduce((s, b) => s + b.balance, 0).toLocaleString()}
+                          ₭{financialData.bookingDetails
+                            .filter(b => b.status !== "CANCELLED" && b.status !== "CHECKED_OUT")
+                            .reduce((s, b) => s + b.balance, 0).toLocaleString()}
                         </td>
                         <td />
                       </tr>
