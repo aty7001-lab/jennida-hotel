@@ -2,15 +2,14 @@
 
 import prisma from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
-import { redirect } from "next/navigation";
 
 export async function createPayment(formData: FormData) {
   const reservationId = formData.get("reservationId") as string;
   const amount = parseFloat(formData.get("amount") as string);
   const method = formData.get("method") as any;
 
-  if (!reservationId || !amount || !method) {
-    throw new Error("Missing required fields");
+  if (!reservationId || !amount || amount <= 0 || !method) {
+    return { error: "ກະລຸນາປ້ອນຂໍ້ມູນໃຫ້ຄົບ" };
   }
 
   await prisma.payment.create({
@@ -23,7 +22,10 @@ export async function createPayment(formData: FormData) {
   });
 
   revalidatePath("/payments");
+  revalidatePath("/bookings");
+  revalidatePath("/reports/revenue");
+  revalidatePath("/reports/daily");
   revalidatePath("/");
 
-  redirect("/payments");
+  return { success: true };
 }
