@@ -67,6 +67,7 @@ export default async function BookingsPage({
       amount:    p.amount,
       method:    p.method,
       status:    p.status,
+      note:      p.note ?? null,
       createdAt: p.createdAt.toISOString(),
     })),
   }));

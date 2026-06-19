@@ -82,17 +82,23 @@ export async function createBooking(bookingType: "immediate" | "advance", formDa
         )
       );
 
-      // 4. Create payment records for each method used (linked to first reservation)
-      if (reservations.length > 0) {
-        if (depositTransfer > 0) {
-          await tx.payment.create({
-            data: { reservationId: reservations[0].id, amount: depositTransfer, method: "TRANSFER", status: "COMPLETED" },
-          });
-        }
-        if (depositCash > 0) {
-          await tx.payment.create({
-            data: { reservationId: reservations[0].id, amount: depositCash, method: "CASH", status: "COMPLETED" },
-          });
+      // 4. Create payment records — distribute deposit proportionally across rooms
+      if (reservations.length > 0 && (depositTransfer > 0 || depositCash > 0)) {
+        const totalValue = selectedRooms.reduce((s, r) => s + r.price * nights, 0) || 1;
+        for (let i = 0; i < reservations.length; i++) {
+          const share = (selectedRooms[i].price * nights) / totalValue;
+          const tAmt = Math.round(depositTransfer * share);
+          const cAmt = Math.round(depositCash * share);
+          if (tAmt > 0) {
+            await tx.payment.create({
+              data: { reservationId: reservations[i].id, amount: tAmt, method: "TRANSFER", status: "COMPLETED" },
+            });
+          }
+          if (cAmt > 0) {
+            await tx.payment.create({
+              data: { reservationId: reservations[i].id, amount: cAmt, method: "CASH", status: "COMPLETED" },
+            });
+          }
         }
       }
 

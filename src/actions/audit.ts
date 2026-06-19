@@ -24,6 +24,15 @@ export async function createAuditLog(params: {
   }
 }
 
+export async function getAuditLogsByEntity(entityId: string, limit = 50) {
+  return prisma.auditLog.findMany({
+    where: { entityId },
+    include: { user: { select: { name: true } } },
+    orderBy: { createdAt: "desc" },
+    take: limit,
+  });
+}
+
 export async function getAuditLogs(limit = 50) {
   return prisma.auditLog.findMany({
     include: { user: { select: { name: true, email: true } } },

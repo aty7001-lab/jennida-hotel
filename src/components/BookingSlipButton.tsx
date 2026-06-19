@@ -33,6 +33,7 @@ export interface SlipReservation {
     amount: number;
     method: string;
     status: string;
+    note?: string | null;
     createdAt: string;
   }>;
 }

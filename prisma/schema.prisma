@@ -78,10 +78,11 @@ model Reservation {
   checkOut    DateTime
   status      ReservationStatus @default(PENDING)
   source      ReservationSource @default(WALK_IN)
-  totalAmount Float
-  deposit     Float
-  credit      Float             @default(0) // For refunds / cancellations
-  guest       Guest             @relation(fields: [guestId], references: [id])
+  totalAmount   Float
+  deposit       Float
+  credit        Float             @default(0)
+  discountNote  String?
+  guest         Guest             @relation(fields: [guestId], references: [id])
   room        Room              @relation(fields: [roomId], references: [id])
   payments    Payment[]
   createdAt   DateTime          @default(now())
@@ -109,6 +110,7 @@ model Payment {
   amount        Float
   method        PaymentMethod
   status        PaymentStatus @default(PENDING)
+  note          String?
   reservation   Reservation   @relation(fields: [reservationId], references: [id])
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt

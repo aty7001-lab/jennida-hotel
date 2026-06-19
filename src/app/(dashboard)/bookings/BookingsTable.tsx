@@ -1,11 +1,11 @@
 "use client";
 
 import { useState, useCallback } from "react";
+import Link from "next/link";
 import { Printer, CheckSquare, Square } from "lucide-react";
 import { SlipReservation } from "@/components/BookingSlipButton";
 import BookingSlipButton from "@/components/BookingSlipButton";
-import RecordPaymentButton from "@/components/RecordPaymentButton";
-import { CheckInButton, CheckOutButton, CancelButton, MoveRoomButton } from "./ReservationActions";
+import { PendingConfirmedActions, CheckedInActions } from "./ReservationActions";
 
 const statusLabel: Record<string, string> = {
   CONFIRMED:   "ຢືນຢັນແລ້ວ",
@@ -69,9 +69,12 @@ export default function BookingsTable({ reservations, availableRooms, isStaff, t
     window.open(`/print/group?ids=${ids}`, "_blank");
   }, [selected]);
 
+  // total columns (checkbox + guest + room [+ branch] + checkIn + checkOut + source + total + balance + status + actions + slip)
+  const colCount = isStaff ? 11 : 12;
+
   return (
     <>
-      {/* ── Bulk action bar (floats above table when any selected) ── */}
+      {/* ── Bulk action bar ── */}
       {someSelected && (
         <div className="flex items-center justify-between px-4 py-2.5 bg-indigo-50 border-b border-indigo-100">
           <div className="flex items-center gap-2 text-indigo-700 text-sm font-medium">
@@ -102,7 +105,6 @@ export default function BookingsTable({ reservations, availableRooms, isStaff, t
         <table className="w-full text-left border-collapse whitespace-nowrap">
           <thead>
             <tr className="bg-slate-50 text-slate-600 text-xs uppercase tracking-wider border-b border-slate-200">
-              {/* select-all checkbox */}
               <th className="pl-4 pr-2 py-3">
                 <button onClick={toggleAll} className="flex items-center text-slate-400 hover:text-indigo-600 transition-colors">
                   {allSelected
@@ -117,6 +119,7 @@ export default function BookingsTable({ reservations, availableRooms, isStaff, t
               <th className="px-3 py-3 font-semibold">ເຊັກເອົ້າ</th>
               <th className="px-3 py-3 font-semibold">ຊ່ອງທາງ</th>
               <th className="px-3 py-3 font-semibold">ຈຳນວນ</th>
+              <th className="px-3 py-3 font-semibold">ຍອດຄ້າງ</th>
               <th className="px-3 py-3 font-semibold">ສະຖານະ</th>
               <th className="px-3 py-3 font-semibold text-right">ຈັດການ</th>
               <th className="px-3 py-3 font-semibold text-center">ສລິບ</th>
@@ -125,19 +128,23 @@ export default function BookingsTable({ reservations, availableRooms, isStaff, t
           <tbody className="divide-y divide-slate-100">
             {reservations.length === 0 ? (
               <tr>
-                <td colSpan={isStaff ? 10 : 11} className="px-4 py-8 text-center text-slate-500 text-sm">
+                <td colSpan={colCount} className="px-4 py-8 text-center text-slate-500 text-sm">
                   ຍັງບໍ່ມີການຈອງ
                 </td>
               </tr>
             ) : (
               reservations.map(r => {
                 const isChecked = selected.has(r.id);
+                const paidAmount = r.payments
+                  .filter(p => p.status === "COMPLETED")
+                  .reduce((s, p) => s + p.amount, 0);
+                const balance = r.totalAmount - paidAmount;
+
                 return (
                   <tr
                     key={r.id}
                     className={`transition-colors ${isChecked ? "bg-indigo-50/60" : "hover:bg-slate-50/80"}`}
                   >
-                    {/* row checkbox */}
                     <td className="pl-4 pr-2 py-2.5">
                       <button onClick={() => toggleOne(r.id)} className="flex items-center text-slate-300 hover:text-indigo-600 transition-colors">
                         {isChecked
@@ -145,7 +152,14 @@ export default function BookingsTable({ reservations, availableRooms, isStaff, t
                           : <Square size={15} />}
                       </button>
                     </td>
-                    <td className="px-3 py-2.5 text-sm text-slate-900 font-medium">{r.guest.name}</td>
+                    <td className="px-3 py-2.5 text-sm font-medium">
+                      <Link
+                        href={`/bookings/${r.id}`}
+                        className="text-indigo-700 hover:text-indigo-900 hover:underline transition-colors"
+                      >
+                        {r.guest.name}
+                      </Link>
+                    </td>
                     <td className="px-3 py-2.5 text-sm text-slate-700">#{r.room.number}</td>
                     {!isStaff && (
                       <td className="px-3 py-2.5 text-sm text-slate-700">{r.room.branch?.name || "-"}</td>
@@ -154,31 +168,47 @@ export default function BookingsTable({ reservations, availableRooms, isStaff, t
                     <td className="px-3 py-2.5 text-sm text-slate-500">{fmtDateShort(r.checkOut)}</td>
                     <td className="px-3 py-2.5 text-sm text-slate-500">{sourceLabel[r.source] ?? r.source}</td>
                     <td className="px-3 py-2.5 text-sm text-slate-900">₭{r.totalAmount.toLocaleString()}</td>
+                    <td className="px-3 py-2.5 text-sm font-medium">
+                      {(r.status === "CHECKED_OUT" || r.status === "CANCELLED") ? (
+                        <span className="text-slate-400">—</span>
+                      ) : balance > 0 ? (
+                        <span className="text-rose-600">₭{balance.toLocaleString()}</span>
+                      ) : (
+                        <span className="text-emerald-600">ຊຳລະແລ້ວ</span>
+                      )}
+                    </td>
                     <td className="px-3 py-2.5">
                       <span className={`inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium border ${statusStyle[r.status] ?? ""}`}>
                         {statusLabel[r.status] ?? r.status}
                       </span>
                     </td>
-                    <td className="px-3 py-2.5 text-right space-x-1">
-                      {(r.status === "CONFIRMED" || r.status === "PENDING") && (
-                        <>
-                          <CheckInButton reservationId={r.id} />
-                          <CancelButton reservationId={r.id} />
-                          <RecordPaymentButton
+                    <td className="px-3 py-2.5 text-right">
+                      <div className="flex items-center justify-end gap-1">
+                        {(r.status === "CONFIRMED" || r.status === "PENDING") && (
+                          <PendingConfirmedActions
                             reservationId={r.id}
                             guestName={r.guest.name}
                             totalAmount={r.totalAmount}
-                            alreadyPaid={r.payments.filter(p => p.status === "COMPLETED").reduce((s, p) => s + p.amount, 0)}
+                            alreadyPaid={paidAmount}
+                            checkIn={r.checkIn}
+                            checkOut={r.checkOut}
+                            roomPrice={r.room.price}
                           />
-                        </>
-                      )}
-                      {r.status === "CHECKED_IN" && (
-                        <>
-                          <MoveRoomButton reservationId={r.id} currentRoomId={r.roomId ?? ""} availableRooms={availableRooms} />
-                          <CheckOutButton reservationId={r.id} />
-                          <CancelButton reservationId={r.id} isCheckedIn />
-                        </>
-                      )}
+                        )}
+                        {r.status === "CHECKED_IN" && (
+                          <CheckedInActions
+                            reservationId={r.id}
+                            currentRoomId={r.roomId ?? ""}
+                            availableRooms={availableRooms}
+                            checkIn={r.checkIn}
+                            checkOut={r.checkOut}
+                            totalAmount={r.totalAmount}
+                            alreadyPaid={paidAmount}
+                            guestName={r.guest.name}
+                            roomPrice={r.room.price}
+                          />
+                        )}
+                      </div>
                     </td>
                     <td className="px-3 py-2.5 text-center">
                       <BookingSlipButton reservation={r} />
@@ -203,7 +233,6 @@ export default function BookingsTable({ reservations, availableRooms, isStaff, t
           </span>
         )}
       </div>
-
     </>
   );
 }
