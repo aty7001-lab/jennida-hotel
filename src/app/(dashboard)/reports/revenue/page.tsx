@@ -22,6 +22,7 @@ import {
 import AddExpenseForm from "@/components/AddExpenseForm";
 import DeleteExpenseButton from "@/components/DeleteExpenseButton";
 import ExportButtons from "@/components/ExportButtons";
+import RevenueExcelExport from "@/components/RevenueExcelExport";
 
 const categoryColor: Record<string, string> = {
   Utilities:   "bg-blue-50 text-blue-700",
@@ -79,7 +80,22 @@ export default async function RevenueReportPage({
           <h1 className="text-2xl font-bold text-slate-900">ລາຍຮັບ ແລະ ລາຍຈ່າຍ</h1>
           <p className="text-sm text-slate-500 mt-1">{dict.reports.subtitle}</p>
         </div>
-        <div className="no-print">
+        <div className="no-print flex items-center gap-2 flex-wrap">
+          <RevenueExcelExport
+            financialData={financialData}
+            expenses={expenses.map((e) => ({
+              id: e.id,
+              date: e.date instanceof Date ? e.date.toISOString() : String(e.date),
+              description: e.description,
+              category: e.category,
+              amount: e.amount,
+              branch: e.branch ? { name: e.branch.name } : null,
+            }))}
+            startDate={startDate}
+            endDate={endDate}
+            branchName={branchFilter ? branches.find((b) => b.id === branchFilter)?.name : undefined}
+            fileName="ລາຍຮັບ-ລາຍຈ່າຍ"
+          />
           <ExportButtons targetId="revenue-report-content" fileName="ລາຍຮັບ-ລາຍຈ່າຍ" />
         </div>
       </div>
