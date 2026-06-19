@@ -4,6 +4,7 @@ import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { getReservationsByIds } from "@/actions/reservations";
 import ConsolidatedSlip from "@/components/ConsolidatedSlip";
 import PrintTrigger from "@/components/PrintTrigger";
+import PrintControls from "@/components/PrintControls";
 import { SlipReservation } from "@/components/BookingSlipButton";
 
 export default async function PrintGroupPage({
@@ -87,14 +88,7 @@ export default async function PrintGroupPage({
         }
       `}</style>
 
-      <div className="print-controls">
-        <button className="btn-print" onClick={() => typeof window !== 'undefined' && window.print()}>
-          🖨 ພິມ / Print
-        </button>
-        <button className="btn-close" onClick={() => typeof window !== 'undefined' && window.close()}>
-          ✕ ປິດ
-        </button>
-      </div>
+      <PrintControls />
 
       <div style={{ padding: "12px", background: "#f1f5f9" }}>
         <ConsolidatedSlip slips={slips} />
