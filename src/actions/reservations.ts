@@ -108,3 +108,26 @@ export async function getReservations(branchId?: string) {
     orderBy: { createdAt: "desc" },
   });
 }
+
+export async function getReservationById(id: string) {
+  return prisma.reservation.findUnique({
+    where: { id },
+    include: {
+      guest: true,
+      room: { include: { branch: true } },
+      payments: true,
+    },
+  });
+}
+
+export async function getReservationsByIds(ids: string[]) {
+  return prisma.reservation.findMany({
+    where: { id: { in: ids } },
+    include: {
+      guest: true,
+      room: { include: { branch: true } },
+      payments: true,
+    },
+    orderBy: { createdAt: "desc" },
+  });
+}

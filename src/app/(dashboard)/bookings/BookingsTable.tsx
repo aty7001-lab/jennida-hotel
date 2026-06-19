@@ -1,10 +1,9 @@
 "use client";
 
 import { useState, useCallback } from "react";
-import { Printer, X, CheckSquare, Square, Layers } from "lucide-react";
+import { Printer, CheckSquare, Square } from "lucide-react";
 import { SlipReservation } from "@/components/BookingSlipButton";
 import BookingSlipButton from "@/components/BookingSlipButton";
-import ConsolidatedSlip from "@/components/ConsolidatedSlip";
 import RecordPaymentButton from "@/components/RecordPaymentButton";
 import { CheckInButton, CheckOutButton, CancelButton, MoveRoomButton } from "./ReservationActions";
 
@@ -48,7 +47,6 @@ function fmtDateShort(s: string) {
 
 export default function BookingsTable({ reservations, availableRooms, isStaff, totalCount, statusFilter }: Props) {
   const [selected, setSelected] = useState<Set<string>>(new Set());
-  const [bulkOpen, setBulkOpen] = useState(false);
 
   const allIds = reservations.map(r => r.id);
   const allSelected = allIds.length > 0 && allIds.every(id => selected.has(id));
@@ -66,7 +64,10 @@ export default function BookingsTable({ reservations, availableRooms, isStaff, t
     setSelected(allSelected ? new Set() : new Set(allIds));
   }, [allSelected, allIds]);
 
-  const selectedSlips = reservations.filter(r => selected.has(r.id));
+  const openGroupPrint = useCallback(() => {
+    const ids = [...selected].join(",");
+    window.open(`/print/group?ids=${ids}`, "_blank");
+  }, [selected]);
 
   return (
     <>
@@ -85,7 +86,7 @@ export default function BookingsTable({ reservations, availableRooms, isStaff, t
               ລ້າງ
             </button>
             <button
-              onClick={() => setBulkOpen(true)}
+              onClick={openGroupPrint}
               className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-white
                 bg-indigo-600 rounded-lg hover:bg-indigo-700 transition-colors shadow-sm"
             >
@@ -203,74 +204,6 @@ export default function BookingsTable({ reservations, availableRooms, isStaff, t
         )}
       </div>
 
-      {/* ════════════════════════════════════════════
-          CONSOLIDATED PRINT MODAL
-      ════════════════════════════════════════════ */}
-      {bulkOpen && (
-        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
-          <div className="fixed inset-0 bg-slate-900/80 backdrop-blur-sm" onClick={() => setBulkOpen(false)} />
-
-          <div className="relative z-10 bg-white rounded-2xl shadow-2xl w-full max-w-3xl max-h-[92vh] flex flex-col overflow-hidden">
-
-            {/* header */}
-            <div className="flex items-center justify-between px-5 py-3.5 border-b border-slate-100 bg-slate-50 shrink-0">
-              <div className="flex items-center gap-2 text-slate-700">
-                <Layers size={16} />
-                <span className="font-semibold text-sm">ສລິບລວມ</span>
-                <span className="text-xs bg-indigo-100 text-indigo-700 font-semibold px-2 py-0.5 rounded-full ml-1">
-                  {selectedSlips.length} ຫ້ອງ / ໃບດຽວ
-                </span>
-              </div>
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() => window.print()}
-                  className="flex items-center gap-1.5 px-4 py-1.5 text-xs font-semibold text-white
-                    bg-indigo-600 rounded-lg hover:bg-indigo-700 transition-colors shadow-sm"
-                >
-                  <Printer size={13} />
-                  ພິມ 1 ໃບ
-                </button>
-                <button onClick={() => setBulkOpen(false)} className="p-1.5 rounded-lg text-slate-400 hover:bg-slate-200 transition-colors">
-                  <X size={16} />
-                </button>
-              </div>
-            </div>
-
-            {/* single consolidated slip preview */}
-            <div className="overflow-y-auto flex-1 bg-slate-100 p-6">
-              <div id="consolidated-slip-print" className="shadow-md mx-auto w-fit">
-                <ConsolidatedSlip slips={selectedSlips} />
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* ── Print CSS — only the consolidated slip ── */}
-      {bulkOpen && (
-        <style>{`
-          @page { size: A4 portrait; margin: 10mm; }
-          @media print {
-            body * { visibility: hidden !important; }
-            #consolidated-slip-print, #consolidated-slip-print * {
-              visibility: visible !important;
-              -webkit-print-color-adjust: exact !important;
-              print-color-adjust: exact !important;
-              color-adjust: exact !important;
-            }
-            #consolidated-slip-print {
-              position: absolute !important;
-              left: 0 !important;
-              top: 0 !important;
-              width: 190mm !important;
-              margin: 0 !important;
-              box-shadow: none !important;
-              page-break-inside: avoid !important;
-              break-inside: avoid !important;
-            }
-          }
-        `}</style>
-      )}
     </>
   );
 }
