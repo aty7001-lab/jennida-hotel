@@ -145,12 +145,17 @@ export default async function BookingDetailPage({
             <div className="text-xs text-emerald-400 mb-1">ຊຳລະແລ້ວ</div>
             <div className="text-lg font-bold text-emerald-700">₭{paidAmount.toLocaleString()}</div>
           </div>
-          <div className={`rounded-xl p-4 ${balance > 0 ? "bg-rose-50" : "bg-slate-50"}`}>
-            <div className={`text-xs mb-1 ${balance > 0 ? "text-rose-400" : "text-slate-400"}`}>ຍອດຄ້າງ</div>
-            <div className={`text-lg font-bold ${balance > 0 ? "text-rose-600" : "text-slate-300"}`}>
-              {balance > 0 ? `₭${balance.toLocaleString()}` : "—"}
-            </div>
-          </div>
+          {(() => {
+            const showBalance = balance > 0 && r.status !== "CANCELLED" && r.status !== "CHECKED_OUT";
+            return (
+              <div className={`rounded-xl p-4 ${showBalance ? "bg-rose-50" : "bg-slate-50"}`}>
+                <div className={`text-xs mb-1 ${showBalance ? "text-rose-400" : "text-slate-400"}`}>ຍອດຄ້າງ</div>
+                <div className={`text-lg font-bold ${showBalance ? "text-rose-600" : "text-slate-300"}`}>
+                  {showBalance ? `₭${balance.toLocaleString()}` : "—"}
+                </div>
+              </div>
+            );
+          })()}
           {r.credit > 0 && (
             <div className="bg-indigo-50 rounded-xl p-4">
               <div className="text-xs text-indigo-400 mb-1">ຄ່າ Credit</div>
