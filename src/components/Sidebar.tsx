@@ -1,5 +1,9 @@
-import Link from 'next/link';
-import { Home, Calendar, Users, Bed, CreditCard, Settings, LogOut, LayoutGrid, PlusCircle, ClipboardList, CalendarDays, Wallet, TrendingUp, Building2 } from 'lucide-react';
+import {
+  Home, Calendar, Users, Bed, Settings, LogOut,
+  LayoutGrid, PlusCircle, ClipboardList, CalendarDays,
+  Wallet, TrendingUp, Building2, BarChart3,
+} from 'lucide-react';
+import { SidebarItem } from './SidebarItem';
 import { getDictionary, getLocale } from '@/lib/dictionary';
 import { LanguageSwitcher } from './LanguageSwitcher';
 import { getServerSession } from 'next-auth/next';
@@ -7,6 +11,17 @@ import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { getAllBranches } from '@/actions/branches';
 import { getActiveBranchId } from '@/lib/active-branch';
 import BranchSelector from './BranchSelector';
+
+function NavLabel({ label }: { label: string }) {
+  return (
+    <div className="flex items-center gap-2 px-2.5 pt-3 pb-0.5">
+      <span className="text-[9.5px] font-bold text-slate-600 uppercase tracking-widest whitespace-nowrap">
+        {label}
+      </span>
+      <div className="flex-1 h-px bg-slate-800/80" />
+    </div>
+  );
+}
 
 export default async function Sidebar() {
   const dict = await getDictionary();
@@ -19,65 +34,87 @@ export default async function Sidebar() {
     : [[], undefined];
 
   return (
-    <div className="flex h-screen w-64 flex-col bg-slate-900 text-slate-50 border-r border-slate-800 shadow-xl z-10 transition-all duration-300">
-      <div className="flex h-20 items-center justify-center border-b border-slate-800/50">
-        <div className="flex items-center gap-3">
-          <div className="bg-indigo-500/20 p-2 rounded-lg">
-            <LayoutGrid className="text-indigo-400" size={24} />
+    <div className="flex h-screen w-64 flex-col bg-slate-900 text-slate-50 border-r border-slate-800/80 shadow-xl z-10">
+
+      {/* ── Logo ── */}
+      <div className="flex h-14 shrink-0 items-center justify-center border-b border-slate-800/60 px-4">
+        <div className="flex items-center gap-2.5">
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-500/20">
+            <LayoutGrid className="text-indigo-400" size={18} />
           </div>
-          <h1 className="text-xl font-bold tracking-wider text-white">Jennida<span className="text-indigo-400"> Hotel</span></h1>
+          <h1 className="text-base font-bold tracking-wide text-white">
+            Jennida<span className="text-indigo-400"> Hotel</span>
+          </h1>
         </div>
       </div>
-      
-      <nav className="flex-1 space-y-1.5 py-6 px-4 overflow-y-auto scrollbar-hide">
-        {isAdmin && (
+
+      {/* ── Branch selector (admin) ── */}
+      {isAdmin && (
+        <div className="shrink-0 border-b border-slate-800/60 px-3 py-1.5">
           <BranchSelector branches={branches} currentBranchId={activeBranchId ?? ""} />
-        )}
-        <div className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-4 px-3">ເມນູຫຼັກ</div>
-        <SidebarItem href="/" icon={<Home size={18} />} label={dict.sidebar.dashboard} />
-        <SidebarItem href="/calendar" icon={<Calendar size={18} />} label={dict.sidebar.calendar} />
-        <SidebarItem href="/rooms" icon={<Bed size={18} />} label={dict.sidebar.rooms} />
-        <SidebarItem href="/bookings" icon={<ClipboardList size={18} />} label="ການຈອງ" />
-        <SidebarItem href="/bookings/new" icon={<PlusCircle size={18} />} label="ຈອງໃໝ່" />
-        <SidebarItem href="/guests" icon={<Users size={18} />} label="ຂໍ້ມູນແຂກ" />
-        <SidebarItem href="/payments" icon={<CreditCard size={18} />} label={dict.sidebar.payments} />
+        </div>
+      )}
 
+      {/* ════════════════════════════════
+          MAIN NAV — no scroll, fits all
+      ════════════════════════════════ */}
+      <nav className="flex-1 px-2.5 py-2 flex flex-col">
+
+        {/* ✦ ຈອງໃໝ່ — CTA button */}
+        <div className="mb-1">
+          <SidebarItem
+            href="/bookings/new"
+            icon={<PlusCircle size={17} />}
+            label="ຈອງໃໝ່"
+            variant="highlight"
+          />
+        </div>
+
+        {/* ── ການຈອງ & ຫ້ອງ ── */}
+        <NavLabel label="ການຈອງ & ຫ້ອງ" />
+        <SidebarItem href="/bookings"  icon={<ClipboardList size={17} />} label="ລາຍການຈອງ" />
+        <SidebarItem href="/rooms"     icon={<Bed size={17} />}           label={dict.sidebar.rooms} />
+        <SidebarItem href="/calendar"  icon={<Calendar size={17} />}      label={dict.sidebar.calendar} />
+
+        {/* ── ຂໍ້ມູນ ── */}
+        <NavLabel label="ຂໍ້ມູນ" />
+        <SidebarItem href="/"       icon={<Home size={17} />}  label={dict.sidebar.dashboard} />
+        <SidebarItem href="/guests" icon={<Users size={17} />} label="ຂໍ້ມູນແຂກ" />
+
+        {/* ── ລາຍງານ ── */}
+        <NavLabel label="ລາຍງານ" />
+        <SidebarItem href="/reports"           icon={<BarChart3 size={17} />}    label="ພາບລວມ" />
+        <SidebarItem href="/reports/revenue"   icon={<Wallet size={17} />}       label={dict.reports.tabRevenue} />
+        <SidebarItem href="/reports/daily"     icon={<CalendarDays size={17} />} label={dict.reports.tabDaily} />
+        <SidebarItem href="/reports/occupancy" icon={<TrendingUp size={17} />}   label={dict.reports.tabOccupancy} />
+
+        {/* spacer pushes admin + settings to bottom */}
+        <div className="flex-1" />
+
+        {/* ════ ADMIN (ເລັກ, ຢູ່ລຸ່ມສຸດ) ════ */}
         {isAdmin && (
-          <>
-            <div className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2 mt-6 px-3">ຜູ້ດູແລ</div>
-            <SidebarItem href="/branches" icon={<Building2 size={18} />} label="ສາຂາ" />
-            <SidebarItem href="/users" icon={<Users size={18} />} label="ຜູ້ໃຊ້" />
-          </>
+          <div className="border-t border-slate-800/60 pt-2 mt-1">
+            <div className="flex items-center gap-1.5 px-2.5 pb-0.5">
+              <span className="text-[9px] font-bold text-slate-700 uppercase tracking-widest">
+                ຜູ້ດູແລລະບົບ
+              </span>
+              <div className="flex-1 h-px bg-slate-800/60" />
+            </div>
+            <div className="flex gap-1 px-1">
+              <SidebarItem href="/branches" icon={<Building2 size={13} />} label="ສາຂາ"     size="sm" />
+              <SidebarItem href="/users"    icon={<Users size={13} />}     label="ຜູ້ໃຊ້"   size="sm" />
+            </div>
+          </div>
         )}
 
-        <div className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2 mt-6 px-3">{dict.sidebar.reports}</div>
-        <SidebarItem href="/reports/daily" icon={<CalendarDays size={18} />} label={dict.reports.tabDaily} />
-        <SidebarItem href="/reports/revenue" icon={<Wallet size={18} />} label={dict.reports.tabRevenue} />
-        <SidebarItem href="/reports/occupancy" icon={<TrendingUp size={18} />} label={dict.reports.tabOccupancy} />
+        {/* ════ ການຕັ້ງຄ່າ ════ */}
+        <div className="border-t border-slate-800/60 pt-1.5 mt-1 space-y-0.5">
+          <SidebarItem href="/settings" icon={<Settings size={13} />} label="ການຕັ້ງຄ່າ" size="sm" />
+          <LanguageSwitcher currentLang={currentLang} />
+          <SidebarItem href="/api/auth/signout" icon={<LogOut size={13} />} label={dict.sidebar.logout} variant="danger" />
+        </div>
+
       </nav>
-
-      <div className="border-t border-slate-800/50 p-4 space-y-1.5">
-        <div className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-4 px-3">ການຕັ້ງຄ່າ</div>
-        <SidebarItem href="/settings" icon={<Settings size={18} />} label="ການຕັ້ງຄ່າ" />
-        <LanguageSwitcher currentLang={currentLang} />
-        <SidebarItem href="/api/auth/signout" icon={<LogOut size={18} />} label={dict.sidebar.logout} variant="danger" />
-      </div>
     </div>
-  );
-}
-
-function SidebarItem({ href, icon, label, variant = 'default' }: { href: string; icon: React.ReactNode; label: string, variant?: 'default' | 'danger' }) {
-  const hoverClass = variant === 'danger' 
-    ? 'hover:bg-red-500/10 hover:text-red-400' 
-    : 'hover:bg-indigo-500/10 hover:text-indigo-300';
-    
-  return (
-    <Link 
-      href={href}
-      className={`flex items-center space-x-3 rounded-md px-3 py-2.5 text-sm font-medium text-slate-400 transition-colors duration-200 ${hoverClass}`}
-    >
-      {icon}
-      <span>{label}</span>
-    </Link>
   );
 }
