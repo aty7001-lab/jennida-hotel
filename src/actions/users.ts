@@ -4,6 +4,13 @@ import prisma from "@/lib/prisma";
 import bcrypt from "bcrypt";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+
+async function requireAdmin() {
+  const session = await getServerSession(authOptions);
+  if (session?.user?.role !== "ADMIN") throw new Error("Unauthorized");
+}
 
 export async function getUsers() {
   return prisma.user.findMany({
@@ -28,6 +35,7 @@ export async function getUserById(id: string) {
 }
 
 export async function createUser(formData: FormData) {
+  await requireAdmin();
   const name = (formData.get("name") as string)?.trim();
   const email = (formData.get("email") as string)?.trim().toLowerCase();
   const password = formData.get("password") as string;
@@ -53,6 +61,7 @@ export async function createUser(formData: FormData) {
 }
 
 export async function updateUser(id: string, formData: FormData) {
+  await requireAdmin();
   const name = (formData.get("name") as string)?.trim();
   const email = (formData.get("email") as string)?.trim().toLowerCase();
   const role = (formData.get("role") as string) || "STAFF";
@@ -79,6 +88,7 @@ export async function updateUser(id: string, formData: FormData) {
 }
 
 export async function deleteUser(id: string) {
+  await requireAdmin();
   await prisma.user.delete({ where: { id } });
   revalidatePath("/users");
 }

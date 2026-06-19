@@ -1,7 +1,12 @@
 import { Settings as SettingsIcon, Globe, Bell, Shield } from 'lucide-react';
 import { getDictionary } from "@/lib/dictionary";
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { redirect } from "next/navigation";
 
 export default async function SettingsPage() {
+  const session = await getServerSession(authOptions);
+  if (session?.user?.role === "STAFF") redirect("/");
   const dict = await getDictionary();
 
   return (
