@@ -14,9 +14,9 @@ export async function createBooking(bookingType: "immediate" | "advance", formDa
     const checkInStr = formData.get("checkIn") as string;
     const checkOutStr = formData.get("checkOut") as string;
     const totalAmount = parseFloat((formData.get("totalAmount") as string) || "0");
-    const deposit = parseFloat((formData.get("deposit") as string) || "0");
+    const depositTransfer = parseFloat((formData.get("depositTransfer") as string) || "0");
+    const depositCash = parseFloat((formData.get("depositCash") as string) || "0");
     const source = formData.get("source") as any || "WALK_IN";
-    const paymentMethod = (formData.get("paymentMethod") as string) || "CASH";
 
     if (!guestName || !guestPhone || !roomIdsStr || !checkInStr || !checkOutStr) {
       throw new Error("Missing required fields");
@@ -82,16 +82,18 @@ export async function createBooking(bookingType: "immediate" | "advance", formDa
         )
       );
 
-      // 4. Create payment for deposit on first reservation (if any)
-      if (deposit > 0 && reservations.length > 0) {
-        await tx.payment.create({
-          data: {
-            reservationId: reservations[0].id,
-            amount: deposit,
-            method: paymentMethod as any,
-            status: "COMPLETED",
-          },
-        });
+      // 4. Create payment records for each method used (linked to first reservation)
+      if (reservations.length > 0) {
+        if (depositTransfer > 0) {
+          await tx.payment.create({
+            data: { reservationId: reservations[0].id, amount: depositTransfer, method: "TRANSFER", status: "COMPLETED" },
+          });
+        }
+        if (depositCash > 0) {
+          await tx.payment.create({
+            data: { reservationId: reservations[0].id, amount: depositCash, method: "CASH", status: "COMPLETED" },
+          });
+        }
       }
 
       // 5. Update room statuses — only for immediate check-in

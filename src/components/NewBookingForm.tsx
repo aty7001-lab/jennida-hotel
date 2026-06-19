@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef } from "react";
-import { CalendarDays, Banknote, UserCircle, Check } from "lucide-react";
+import { CalendarDays, Banknote, UserCircle } from "lucide-react";
 
 type Room = {
   id: string;
@@ -42,7 +42,8 @@ export default function NewBookingForm({
   const [guestName, setGuestName] = useState("");
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
-  const [deposit, setDeposit] = useState("");
+  const [depositTransfer, setDepositTransfer] = useState("");
+  const [depositCash, setDepositCash] = useState("");
 
   function calcNights(ci: string, co: string): number {
     if (!ci || !co) return 0;
@@ -68,16 +69,7 @@ export default function NewBookingForm({
   function calcTotalAmount(): number {
     const nights = calcNights(checkIn, checkOut);
     if (nights <= 0) return 0;
-    const selectedRoomObjects = getSelectedRoomObjects();
-    return selectedRoomObjects.reduce((sum, room) => sum + room.price * nights, 0);
-  }
-
-  function handleCheckIn(e: React.ChangeEvent<HTMLInputElement>) {
-    setCheckIn(e.target.value);
-  }
-
-  function handleCheckOut(e: React.ChangeEvent<HTMLInputElement>) {
-    setCheckOut(e.target.value);
+    return getSelectedRoomObjects().reduce((sum, room) => sum + room.price * nights, 0);
   }
 
   const formRef = useRef<HTMLFormElement>(null);
@@ -98,7 +90,6 @@ export default function NewBookingForm({
 
     const form = formRef.current!;
     const sourceEl = form.elements.namedItem("source") as HTMLInputElement;
-    const paymentMethodEl = form.elements.namedItem("paymentMethod") as HTMLInputElement;
 
     const formData = new FormData();
     formData.append("guestName", guestName);
@@ -108,9 +99,10 @@ export default function NewBookingForm({
     formData.append("checkOut", checkOut);
     formData.append("roomIds", JSON.stringify(Array.from(selectedRooms)));
     formData.append("totalAmount", String(calcTotalAmount()));
-    formData.append("deposit", deposit || "0");
+    formData.append("depositTransfer", depositTransfer || "0");
+    formData.append("depositCash", depositCash || "0");
     formData.append("source", sourceEl?.value || "WALK_IN");
-    formData.append("paymentMethod", paymentMethodEl?.value || "CASH");
+
     if (bookingType === "immediate") {
       createImmediateBooking(formData);
     } else {
@@ -124,6 +116,8 @@ export default function NewBookingForm({
   const nights = calcNights(checkIn, checkOut);
   const totalAmount = calcTotalAmount();
   const selectedRoomObjects = getSelectedRoomObjects();
+  const totalDeposit = (parseFloat(depositTransfer) || 0) + (parseFloat(depositCash) || 0);
+  const outstanding = totalAmount - totalDeposit;
 
   return (
     <form ref={formRef} onSubmit={(e) => e.preventDefault()}>
@@ -177,11 +171,11 @@ export default function NewBookingForm({
           <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5">
             <div>
               <label className="block text-sm font-semibold text-slate-700 mb-1.5">{dict.booking.checkIn}</label>
-              <input type="date" required value={checkIn} onChange={handleCheckIn} className={inputClass} />
+              <input type="date" required value={checkIn} onChange={(e) => setCheckIn(e.target.value)} className={inputClass} />
             </div>
             <div>
               <label className="block text-sm font-semibold text-slate-700 mb-1.5">{dict.booking.checkOut}</label>
-              <input type="date" required value={checkOut} onChange={handleCheckOut} className={inputClass} />
+              <input type="date" required value={checkOut} onChange={(e) => setCheckOut(e.target.value)} className={inputClass} />
             </div>
             <div className="md:col-span-2">
               <label className="block text-sm font-semibold text-slate-700 mb-3">{dict.booking.roomType}</label>
@@ -203,9 +197,7 @@ export default function NewBookingForm({
                   </label>
                 ))}
               </div>
-              <p className="mt-2 text-xs text-slate-500">
-                ເລືອກແລ້ວ: {selectedRooms.size} ຫ້ອງ
-              </p>
+              <p className="mt-2 text-xs text-slate-500">ເລືອກແລ້ວ: {selectedRooms.size} ຫ້ອງ</p>
             </div>
             <div>
               <label className="block text-sm font-semibold text-slate-700 mb-1.5">ຊ່ອງທາງການຈອງ</label>
@@ -219,7 +211,7 @@ export default function NewBookingForm({
           </div>
         </section>
 
-        {/* Summary Section */}
+        {/* Booking Summary */}
         {selectedRooms.size > 0 && checkIn && checkOut && nights > 0 && (
           <section className="bg-indigo-50 border border-indigo-200 rounded-lg p-6">
             <h3 className="text-lg font-semibold text-slate-800 mb-4">ສະຫຼຸບການຈອງ</h3>
@@ -243,24 +235,37 @@ export default function NewBookingForm({
                   </div>
                 ))}
               </div>
-              <div className="border-t border-indigo-200 pt-3 mt-3">
+              <div className="border-t border-indigo-200 pt-3 mt-3 space-y-1.5">
                 <div className="flex justify-between text-base font-bold">
-                  <span>ຍອດລວມ:</span>
+                  <span>ຍອດລວມທັງໝົດ:</span>
                   <span className="text-indigo-600">₭{totalAmount.toLocaleString()}</span>
                 </div>
+                {totalDeposit > 0 && (
+                  <>
+                    <div className="flex justify-between text-sm text-slate-600">
+                      <span>ມັດຈຳທີ່ຮັບແລ້ວ:</span>
+                      <span className="text-emerald-600 font-semibold">−₭{totalDeposit.toLocaleString()}</span>
+                    </div>
+                    <div className="flex justify-between text-sm font-bold border-t border-indigo-200 pt-2">
+                      <span className="text-rose-700">ຍອດຄ້າງຊຳລະ (ຈ່າຍຕອນເຊັກອິນ):</span>
+                      <span className="text-rose-700">₭{outstanding > 0 ? outstanding.toLocaleString() : "0"}</span>
+                    </div>
+                  </>
+                )}
               </div>
             </div>
           </section>
         )}
 
-        {/* Payment Details */}
+        {/* Payment Details — split transfer + cash */}
         <section>
           <div className="flex items-center gap-2 mb-5 pb-3 border-b border-slate-100">
             <Banknote className="text-indigo-500" size={20} />
             <h2 className="text-lg font-semibold text-slate-800">ລາຍລະອຽດການຊຳລະ</h2>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5">
-            <div>
+            {/* Total amount (readonly) */}
+            <div className="md:col-span-2">
               <label className="block text-sm font-semibold text-slate-700 mb-1.5">
                 ຍອດລວມ (₭)
                 {selectedRooms.size > 0 && nights > 0 && (
@@ -271,45 +276,68 @@ export default function NewBookingForm({
               </label>
               <input
                 type="number"
-                step="1"
-                min="0"
                 disabled
                 value={totalAmount}
                 className={`${inputClass} bg-slate-100`}
                 placeholder="0"
               />
             </div>
+
+            {/* Transfer deposit */}
             <div>
-              <label className="block text-sm font-semibold text-slate-700 mb-1.5">ເງິນມັດຈຳ (₭)</label>
+              <label className="block text-sm font-semibold text-slate-700 mb-1.5">
+                🏦 ມັດຈຳ — ໂອນເງິນ (₭)
+              </label>
               <input
                 type="number"
                 step="1"
                 min="0"
-                value={deposit}
-                onChange={(e) => setDeposit(e.target.value)}
+                value={depositTransfer}
+                onChange={(e) => setDepositTransfer(e.target.value)}
                 className={inputClass}
                 placeholder="0"
               />
             </div>
-            <div className="md:col-span-2">
-              <label className="block text-sm font-semibold text-slate-700 mb-1.5">ວິທີຊຳລະເງິນ</label>
-              <div className="flex gap-3 mt-1">
-                <label className="flex-1 flex items-center gap-3 border border-slate-300 rounded-md px-4 py-3 cursor-pointer hover:border-indigo-400 hover:bg-indigo-50/40 transition-colors has-[:checked]:border-indigo-500 has-[:checked]:bg-indigo-50">
-                  <input type="radio" name="paymentMethod" value="CASH" defaultChecked className="accent-indigo-600 w-4 h-4" />
-                  <span className="text-sm font-medium text-slate-800">💵 ເງິນສົດ</span>
-                </label>
-                <label className="flex-1 flex items-center gap-3 border border-slate-300 rounded-md px-4 py-3 cursor-pointer hover:border-indigo-400 hover:bg-indigo-50/40 transition-colors has-[:checked]:border-indigo-500 has-[:checked]:bg-indigo-50">
-                  <input type="radio" name="paymentMethod" value="TRANSFER" className="accent-indigo-600 w-4 h-4" />
-                  <span className="text-sm font-medium text-slate-800">🏦 ໂອນເງິນ</span>
-                </label>
-              </div>
+
+            {/* Cash deposit */}
+            <div>
+              <label className="block text-sm font-semibold text-slate-700 mb-1.5">
+                💵 ມັດຈຳ — ເງິນສົດ (₭)
+              </label>
+              <input
+                type="number"
+                step="1"
+                min="0"
+                value={depositCash}
+                onChange={(e) => setDepositCash(e.target.value)}
+                className={inputClass}
+                placeholder="0"
+              />
             </div>
+
+            {/* Outstanding balance */}
+            {(totalDeposit > 0 || totalAmount > 0) && nights > 0 && selectedRooms.size > 0 && (
+              <div className="md:col-span-2 rounded-lg border border-rose-200 bg-rose-50 px-4 py-3 flex items-center justify-between">
+                <div>
+                  <p className="text-xs text-rose-600 font-medium">ຍອດຄ້າງຊຳລະ (ລູກຄ້າຈ່າຍຕອນເຊັກອິນ)</p>
+                  <p className="text-xs text-slate-500 mt-0.5">
+                    ຍອດລວມ ₭{totalAmount.toLocaleString()} − ມັດຈຳ ₭{totalDeposit.toLocaleString()}
+                  </p>
+                </div>
+                <span className="text-xl font-bold text-rose-700">
+                  ₭{outstanding > 0 ? outstanding.toLocaleString() : "0"}
+                </span>
+              </div>
+            )}
           </div>
         </section>
       </div>
 
       <div className="bg-slate-50 px-6 py-4 border-t border-slate-200 flex justify-end gap-3">
-        <a href="/bookings" className="px-5 py-2 border border-slate-300 rounded-md text-sm font-medium text-slate-700 bg-white hover:bg-slate-50 transition-colors">
+        <a
+          href="/bookings"
+          className="px-5 py-2 border border-slate-300 rounded-md text-sm font-medium text-slate-700 bg-white hover:bg-slate-50 transition-colors"
+        >
           {dict.booking.cancel}
         </a>
         <button
