@@ -124,7 +124,7 @@ function MoreActionsMenu({
         <div
           ref={menuRef}
           style={{ position: "fixed", top: pos.top, right: pos.right, zIndex: 9999 }}
-          className="bg-white shadow-xl rounded-xl border border-slate-200 py-1 min-w-[160px]"
+          className="flex flex-col bg-white shadow-xl rounded-xl border border-slate-200 py-1 min-w-[160px]"
         >
           {items.map((item, i) => (
             <button
