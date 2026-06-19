@@ -249,6 +249,7 @@ export default function BookingsTable({ reservations, availableRooms, isStaff, t
       {/* ── Print CSS — only the consolidated slip ── */}
       {bulkOpen && (
         <style>{`
+          @page { size: A4 portrait; margin: 10mm; }
           @media print {
             body * { visibility: hidden !important; }
             #consolidated-slip-print, #consolidated-slip-print * {
@@ -261,9 +262,11 @@ export default function BookingsTable({ reservations, availableRooms, isStaff, t
               position: absolute !important;
               left: 0 !important;
               top: 0 !important;
-              width: 100% !important;
+              width: 190mm !important;
               margin: 0 !important;
               box-shadow: none !important;
+              page-break-inside: avoid !important;
+              break-inside: avoid !important;
             }
           }
         `}</style>

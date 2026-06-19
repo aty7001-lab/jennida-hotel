@@ -94,6 +94,7 @@ export default function BookingSlipButton({ reservation }: { reservation: SlipRe
 
       {open && (
         <style>{`
+          @page { size: A4 portrait; margin: 10mm; }
           @media print {
             body * { visibility: hidden !important; }
             #booking-slip-print, #booking-slip-print * {
@@ -106,9 +107,11 @@ export default function BookingSlipButton({ reservation }: { reservation: SlipRe
               position: absolute !important;
               left: 0 !important;
               top: 0 !important;
-              width: 100% !important;
+              width: 190mm !important;
               margin: 0 !important;
               box-shadow: none !important;
+              page-break-inside: avoid !important;
+              break-inside: avoid !important;
             }
           }
         `}</style>
