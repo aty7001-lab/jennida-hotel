@@ -18,6 +18,14 @@ export default function AddExpenseForm({
   const formRef = useRef<HTMLFormElement>(null);
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState("");
+  const [displayAmount, setDisplayAmount] = useState("");
+  const [rawAmount, setRawAmount] = useState("");
+
+  function handleAmountChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const digits = e.target.value.replace(/[^0-9]/g, "");
+    setRawAmount(digits);
+    setDisplayAmount(digits ? Number(digits).toLocaleString("en-US") : "");
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -30,6 +38,8 @@ export default function AddExpenseForm({
         setError(result.error);
       } else {
         formRef.current?.reset();
+        setDisplayAmount("");
+        setRawAmount("");
       }
     });
   }
@@ -53,15 +63,19 @@ export default function AddExpenseForm({
 
       <div>
         <label className="block text-xs font-medium text-slate-500 mb-1">ຈຳນວນ (₭)</label>
-        <input
-          type="number"
-          name="amount"
-          required
-          min={1}
-          step={1000}
-          placeholder="0"
-          className="w-full border border-slate-300 rounded-md px-3 py-1.5 text-sm bg-white focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
-        />
+        <div className="relative">
+          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm pointer-events-none">₭</span>
+          <input
+            type="text"
+            inputMode="numeric"
+            value={displayAmount}
+            onChange={handleAmountChange}
+            required
+            placeholder="0"
+            className="w-full border border-slate-300 rounded-md pl-7 pr-3 py-1.5 text-sm bg-white focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
+          />
+          <input type="hidden" name="amount" value={rawAmount} />
+        </div>
       </div>
 
       <div>
