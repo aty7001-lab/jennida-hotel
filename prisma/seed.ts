@@ -33,7 +33,7 @@ async function main() {
 
   // 2. Create Admin & Staff
   const hashedPassword = await bcrypt.hash('admin123', 10);
-  
+
   await prisma.user.upsert({
     where: { email: 'admin@hotel.com' },
     update: {},
@@ -58,65 +58,77 @@ async function main() {
   });
   console.log('Users seeded!');
 
-  // 3. Seed Rooms for BKK Branch
+  // 3. Upsert RoomTypes per branch
+  const upsertType = (name: string, branchId: string) =>
+    prisma.roomType.upsert({
+      where: { name_branchId: { name, branchId } },
+      update: {},
+      create: { name, branchId },
+    });
+
+  // BKK room types
+  const bkkStandard = await upsertType('Standard', bkkBranch.id);
+  const bkkDeluxe   = await upsertType('Deluxe',   bkkBranch.id);
+  const bkkSuite    = await upsertType('Suite',     bkkBranch.id);
+
+  // CNX room types
+  const cnxVip      = await upsertType('VIP',      cnxBranch.id);
+  const cnxStandard = await upsertType('Standard', cnxBranch.id);
+
+  console.log('RoomTypes seeded!');
+
+  // 4. Seed Rooms
   const count = await prisma.room.count();
   if (count === 0) {
-    const rooms = [];
-    
     // BKK Rooms
     for (let i = 1; i <= 10; i++) {
-      rooms.push({ number: `1${i.toString().padStart(2, '0')}`, type: 'Standard', price: 1000, branchId: bkkBranch.id });
+      await prisma.room.create({ data: { number: `1${i.toString().padStart(2, '0')}`, roomTypeId: bkkStandard.id, price: 1000, branchId: bkkBranch.id } });
     }
     for (let i = 1; i <= 5; i++) {
-      rooms.push({ number: `2${i.toString().padStart(2, '0')}`, type: 'Deluxe', price: 2000, branchId: bkkBranch.id });
+      await prisma.room.create({ data: { number: `2${i.toString().padStart(2, '0')}`, roomTypeId: bkkDeluxe.id, price: 2000, branchId: bkkBranch.id } });
     }
     for (let i = 1; i <= 5; i++) {
-      rooms.push({ number: `3${i.toString().padStart(2, '0')}`, type: 'Suite', price: 3000, branchId: bkkBranch.id });
+      await prisma.room.create({ data: { number: `3${i.toString().padStart(2, '0')}`, roomTypeId: bkkSuite.id, price: 3000, branchId: bkkBranch.id } });
     }
 
     // CNX Rooms — Jennida Hotel 1 (20 ຫ້ອງ)
-    const cnxRooms = [
+    const cnxRooms: { number: string; roomTypeId: string; price: number }[] = [
       // VIP 250,000₭
-      { number: '101', type: 'VIP', price: 250000 },
-      { number: '102', type: 'VIP', price: 250000 },
-      { number: '103', type: 'VIP', price: 250000 },
-      { number: '201', type: 'VIP', price: 250000 },
-      { number: '202', type: 'VIP', price: 250000 },
-      { number: '205', type: 'VIP', price: 250000 },
+      { number: '101', roomTypeId: cnxVip.id, price: 250000 },
+      { number: '102', roomTypeId: cnxVip.id, price: 250000 },
+      { number: '103', roomTypeId: cnxVip.id, price: 250000 },
+      { number: '201', roomTypeId: cnxVip.id, price: 250000 },
+      { number: '202', roomTypeId: cnxVip.id, price: 250000 },
+      { number: '205', roomTypeId: cnxVip.id, price: 250000 },
       // Standard 200,000₭
-      { number: '104', type: 'Standard', price: 200000 },
-      { number: '105', type: 'Standard', price: 200000 },
-      { number: '106', type: 'Standard', price: 200000 },
-      { number: '203', type: 'Standard', price: 200000 },
-      { number: '204', type: 'Standard', price: 200000 },
-      { number: '206', type: 'Standard', price: 200000 },
-      { number: '207', type: 'Standard', price: 200000 },
-      { number: '301', type: 'Standard', price: 200000 },
-      { number: '302', type: 'Standard', price: 200000 },
-      { number: '303', type: 'Standard', price: 200000 },
-      { number: '304', type: 'Standard', price: 200000 },
-      { number: '305', type: 'Standard', price: 200000 },
-      { number: '306', type: 'Standard', price: 200000 },
-      { number: '307', type: 'Standard', price: 200000 },
+      { number: '104', roomTypeId: cnxStandard.id, price: 200000 },
+      { number: '105', roomTypeId: cnxStandard.id, price: 200000 },
+      { number: '106', roomTypeId: cnxStandard.id, price: 200000 },
+      { number: '203', roomTypeId: cnxStandard.id, price: 200000 },
+      { number: '204', roomTypeId: cnxStandard.id, price: 200000 },
+      { number: '206', roomTypeId: cnxStandard.id, price: 200000 },
+      { number: '207', roomTypeId: cnxStandard.id, price: 200000 },
+      { number: '301', roomTypeId: cnxStandard.id, price: 200000 },
+      { number: '302', roomTypeId: cnxStandard.id, price: 200000 },
+      { number: '303', roomTypeId: cnxStandard.id, price: 200000 },
+      { number: '304', roomTypeId: cnxStandard.id, price: 200000 },
+      { number: '305', roomTypeId: cnxStandard.id, price: 200000 },
+      { number: '306', roomTypeId: cnxStandard.id, price: 200000 },
+      { number: '307', roomTypeId: cnxStandard.id, price: 200000 },
     ];
     for (const r of cnxRooms) {
-      rooms.push({ ...r, branchId: cnxBranch.id });
-    }
-
-    for (const r of rooms) {
-      await prisma.room.create({ data: r });
+      await prisma.room.create({ data: { ...r, branchId: cnxBranch.id } });
     }
     console.log('Rooms seeded successfully!');
   } else {
     console.log('Rooms already exist, skipping seed.');
   }
 
-  // 4. Seed Guests, Reservations, and Payments
+  // 5. Seed Guests, Reservations, and Payments
   const guestCount = await prisma.guest.count();
   if (guestCount === 0) {
     const allRooms = await prisma.room.findMany();
     if (allRooms.length > 0) {
-      // Create some mock guests
       const guestsData = [
         { name: "Sompong Jaidee", phone: "0812345678", email: "sompong@example.com" },
         { name: "Mana Rakthai", phone: "0898765432", email: "mana@example.com" },
@@ -128,14 +140,12 @@ async function main() {
         guests.push(await prisma.guest.create({ data: g }));
       }
 
-      // Create some reservations
-      // Guest 1: confirmed, paid via cash
       const res1 = await prisma.reservation.create({
         data: {
           guestId: guests[0].id,
-          roomId: allRooms[0].id, // bkk standard
+          roomId: allRooms[0].id,
           checkIn: new Date(),
-          checkOut: new Date(Date.now() + 86400000 * 2), // +2 days
+          checkOut: new Date(Date.now() + 86400000 * 2),
           status: "CONFIRMED",
           source: "WALK_IN",
           totalAmount: 2000,
@@ -143,25 +153,16 @@ async function main() {
         }
       });
       await prisma.payment.create({
-        data: {
-          reservationId: res1.id,
-          amount: 1000,
-          method: "CASH",
-          status: "COMPLETED",
-        }
+        data: { reservationId: res1.id, amount: 1000, method: "CASH", status: "COMPLETED" }
       });
-      await prisma.room.update({
-        where: { id: allRooms[0].id },
-        data: { status: "OCCUPIED" }
-      });
+      await prisma.room.update({ where: { id: allRooms[0].id }, data: { status: "OCCUPIED" } });
 
-      // Guest 2: checked out
       const res2 = await prisma.reservation.create({
         data: {
           guestId: guests[1].id,
           roomId: allRooms[1].id,
-          checkIn: new Date(Date.now() - 86400000 * 3), // -3 days
-          checkOut: new Date(Date.now() - 86400000), // -1 day
+          checkIn: new Date(Date.now() - 86400000 * 3),
+          checkOut: new Date(Date.now() - 86400000),
           status: "CHECKED_OUT",
           source: "OTA_AGODA",
           totalAmount: 2000,
@@ -169,25 +170,16 @@ async function main() {
         }
       });
       await prisma.payment.create({
-        data: {
-          reservationId: res2.id,
-          amount: 2000,
-          method: "CREDIT_CARD",
-          status: "COMPLETED",
-        }
+        data: { reservationId: res2.id, amount: 2000, method: "CREDIT_CARD", status: "COMPLETED" }
       });
-      await prisma.room.update({
-        where: { id: allRooms[1].id },
-        data: { status: "CLEANING" }
-      });
+      await prisma.room.update({ where: { id: allRooms[1].id }, data: { status: "CLEANING" } });
 
-      // Guest 3: pending payment
       const res3 = await prisma.reservation.create({
         data: {
           guestId: guests[2].id,
           roomId: allRooms[2].id,
-          checkIn: new Date(Date.now() + 86400000 * 5), // +5 days
-          checkOut: new Date(Date.now() + 86400000 * 7), // +7 days
+          checkIn: new Date(Date.now() + 86400000 * 5),
+          checkOut: new Date(Date.now() + 86400000 * 7),
           status: "PENDING",
           source: "OTA_BOOKING",
           totalAmount: 4000,
@@ -195,12 +187,7 @@ async function main() {
         }
       });
       await prisma.payment.create({
-        data: {
-          reservationId: res3.id,
-          amount: 4000,
-          method: "TRANSFER",
-          status: "PENDING",
-        }
+        data: { reservationId: res3.id, amount: 4000, method: "TRANSFER", status: "PENDING" }
       });
 
       console.log('Guests, Reservations, and Payments seeded successfully!');
