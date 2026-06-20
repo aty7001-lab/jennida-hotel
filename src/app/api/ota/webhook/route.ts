@@ -51,7 +51,7 @@ export async function POST(request: NextRequest) {
     // Find an available room of the requested type in the branch
     const availableRoom = await prisma.room.findFirst({
       where: {
-        type: roomType,
+        roomType: { name: roomType },
         branchId: branch.id,
         status: "AVAILABLE",
       },
