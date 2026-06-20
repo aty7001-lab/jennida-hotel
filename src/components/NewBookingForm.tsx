@@ -7,7 +7,7 @@ import { lookupGuestByPhone } from "@/actions/bookings";
 type Room = {
   id: string;
   number: string;
-  type: string;
+  roomType: { name: string };
   price: number;
   branch: { name: string } | null;
 };
@@ -227,7 +227,7 @@ export default function NewBookingForm({
                       className="accent-indigo-600 w-4 h-4"
                     />
                     <span className="flex-1 text-sm text-slate-700">
-                      ຫ້ອງ {room.number} — {room.type} ({room.branch?.name}) · ₭{room.price.toLocaleString()}/ຄືນ
+                      ຫ້ອງ {room.number} — {room.roomType.name} ({room.branch?.name}) · ₭{room.price.toLocaleString()}/ຄືນ
                     </span>
                     {selectedRooms.has(room.id) && nights > 0 && (
                       <span className="text-xs font-medium text-indigo-600">₭{(room.price * nights).toLocaleString()}</span>
@@ -268,7 +268,7 @@ export default function NewBookingForm({
                 <p className="text-sm font-semibold text-slate-700 mb-2">ຫ້ອງທີ່ຈອງ:</p>
                 {selectedRoomObjects.map((room) => (
                   <div key={room.id} className="flex justify-between text-sm ml-4 mb-1">
-                    <span className="text-slate-600">ຫ້ອງ {room.number} ({room.type})</span>
+                    <span className="text-slate-600">ຫ້ອງ {room.number} ({room.roomType.name})</span>
                     <span className="text-slate-900">₭{(room.price * nights).toLocaleString()}</span>
                   </div>
                 ))}
