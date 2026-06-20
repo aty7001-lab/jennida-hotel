@@ -6,7 +6,7 @@ import { revalidatePath } from "next/cache";
 export async function createPayment(formData: FormData) {
   const reservationId = formData.get("reservationId") as string;
   const amount = parseFloat(formData.get("amount") as string);
-  const method = formData.get("method") as any;
+  const method = formData.get("method") as "CASH" | "TRANSFER" | "CREDIT_CARD";
 
   if (!reservationId || !amount || amount <= 0 || !method) {
     return { error: "ກະລຸນາປ້ອນຂໍ້ມູນໃຫ້ຄົບ" };

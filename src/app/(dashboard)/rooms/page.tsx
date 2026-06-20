@@ -24,8 +24,7 @@ export default async function RoomsPage({ searchParams }: { searchParams: Promis
   const userBranchId = session?.user?.branchId;
 
   const cookieBranchId = await getActiveBranchId();
-  // URL param overrides cookie (for RoomFilters dropdown); cookie is the global default
-  const branchFilter = isStaff ? userBranchId : params.branch || cookieBranchId || undefined;
+  const branchFilter = isStaff ? userBranchId : cookieBranchId || undefined;
   const allRooms = await getRoomsByBranch(branchFilter);
   const branches = await getAllBranches();
 
@@ -42,8 +41,8 @@ export default async function RoomsPage({ searchParams }: { searchParams: Promis
     rooms = rooms.filter(r => r.status === params.status);
   }
 
-  // Admin + All Branches → grouped view
-  const showGrouped = isAdmin && !params.branch && !params.q && !params.status;
+  // Admin + All Branches (no cookie branch selected) → grouped view
+  const showGrouped = isAdmin && !cookieBranchId && !params.q && !params.status;
 
   const RoomRow = ({ room }: { room: typeof rooms[0] }) => (
     <tr className="hover:bg-slate-50/80 transition-colors">
@@ -118,11 +117,8 @@ export default async function RoomsPage({ searchParams }: { searchParams: Promis
       {/* Filter bar */}
       <div className="bg-white rounded-md shadow-sm border border-slate-200 overflow-hidden">
         <RoomFilters
-          branches={branches}
-          isStaff={isStaff}
           defaultQ={params.q || ''}
           defaultStatus={params.status || ''}
-          defaultBranch={params.branch || ''}
         />
 
         {/* Grouped view: All Branches (Admin only, no filters) */}
@@ -130,7 +126,6 @@ export default async function RoomsPage({ searchParams }: { searchParams: Promis
           <div className="divide-y divide-slate-200">
             {branches.map(branch => {
               const branchRooms = allRooms.filter(r => r.branchId === branch.id);
-              const isHotel1 = branch.id === '4785ab66-a2ac-49c7-b6fb-06805c49f8a8';
               return (
                 <div key={branch.id}>
                   <div className="flex items-center justify-between px-4 py-3 bg-slate-50 border-b border-slate-100">
@@ -140,11 +135,9 @@ export default async function RoomsPage({ searchParams }: { searchParams: Promis
                       <span className="text-[10px] font-mono bg-slate-200 text-slate-600 px-1.5 py-0.5 rounded">{branch.code}</span>
                       <span className="text-xs text-slate-500">{branchRooms.length} ຫ້ອງ</span>
                     </div>
-                    {isHotel1 && (
-                      <Link href={`/rooms/new?branchId=${branch.id}`} className="flex items-center gap-1.5 bg-indigo-600 text-white text-xs font-medium px-3 py-1.5 rounded-md hover:bg-indigo-700 transition-colors">
-                        <Plus size={13} />ເພີ່ມຫ້ອງ
-                      </Link>
-                    )}
+                    <Link href={`/rooms/new?branchId=${branch.id}`} className="flex items-center gap-1.5 bg-indigo-600 text-white text-xs font-medium px-3 py-1.5 rounded-md hover:bg-indigo-700 transition-colors">
+                      <Plus size={13} />ເພີ່ມຫ້ອງ
+                    </Link>
                   </div>
                   <RoomTable rows={branchRooms} />
                 </div>

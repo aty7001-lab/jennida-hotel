@@ -1,23 +1,15 @@
 "use client";
 
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { Search, Filter } from "lucide-react";
 import { useRef } from "react";
 
-type Branch = { id: string; name: string };
-
 export default function RoomFilters({
-  branches,
-  isStaff,
   defaultQ,
   defaultStatus,
-  defaultBranch,
 }: {
-  branches: Branch[];
-  isStaff: boolean;
   defaultQ: string;
   defaultStatus: string;
-  defaultBranch: string;
 }) {
   const router = useRouter();
   const formRef = useRef<HTMLFormElement>(null);
@@ -28,10 +20,8 @@ export default function RoomFilters({
     const params = new URLSearchParams();
     const q = data.get("q") as string;
     const status = data.get("status") as string;
-    const branch = data.get("branch") as string;
     if (q) params.set("q", q);
     if (status) params.set("status", status);
-    if (branch) params.set("branch", branch);
     router.push(`/rooms?${params.toString()}`);
   }
 
@@ -64,20 +54,6 @@ export default function RoomFilters({
         <option value="CLEANING">ກຳລັງທຳຄວາມສະອາດ</option>
         <option value="MAINTENANCE">ສ້ອມແປງ</option>
       </select>
-
-      {!isStaff && (
-        <select
-          name="branch"
-          defaultValue={defaultBranch}
-          onChange={submit}
-          className="w-full sm:w-52 border border-slate-300 rounded-md px-3 py-1.5 text-sm bg-white text-slate-700 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
-        >
-          <option value="">ທຸກສາຂາ</option>
-          {branches.map((b) => (
-            <option key={b.id} value={b.id}>{b.name}</option>
-          ))}
-        </select>
-      )}
 
       <button
         type="submit"

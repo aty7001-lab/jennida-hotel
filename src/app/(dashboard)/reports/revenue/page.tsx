@@ -75,14 +75,14 @@ const categoryLao: Record<string, string> = {
 export default async function RevenueReportPage({
   searchParams,
 }: {
-  searchParams: Promise<{ branchId?: string; start?: string; end?: string }>;
+  searchParams: Promise<{ start?: string; end?: string }>;
 }) {
   const params = await searchParams;
   const session = await getServerSession(authOptions);
   const isStaff = session?.user?.role === "STAFF";
   const userBranchId = session?.user?.branchId;
   const cookieBranchId = await getActiveBranchId();
-  const branchFilter = isStaff ? userBranchId : params.branchId || cookieBranchId || undefined;
+  const branchFilter = isStaff ? userBranchId : cookieBranchId || undefined;
 
   const defaultStart = format(startOfMonth(new Date()), "yyyy-MM-dd");
   const defaultEnd = format(endOfMonth(new Date()), "yyyy-MM-dd");
@@ -150,30 +150,7 @@ export default async function RevenueReportPage({
               <PeriodPicker
                 startDate={startDate}
                 endDate={endDate}
-                extraParams={!isStaff ? { branchId: params.branchId || "" } : {}}
               />
-              {!isStaff && (
-                <form className="flex items-center gap-2">
-                  <input type="hidden" name="start" value={startDate} />
-                  <input type="hidden" name="end" value={endDate} />
-                  <select
-                    name="branchId"
-                    defaultValue={params.branchId || ""}
-                    className="w-44 border border-slate-300 rounded-md px-3 py-1.5 text-sm bg-white focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
-                  >
-                    <option value="">{dict.reports.allBranches}</option>
-                    {branches.map((b) => (
-                      <option key={b.id} value={b.id}>{b.name}</option>
-                    ))}
-                  </select>
-                  <button
-                    type="submit"
-                    className="px-3 py-1.5 bg-slate-800 text-white text-sm font-medium rounded-md hover:bg-slate-700 transition-colors"
-                  >
-                    {dict.reports.apply}
-                  </button>
-                </form>
-              )}
             </div>
           </div>
 

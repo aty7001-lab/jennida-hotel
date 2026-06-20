@@ -31,9 +31,10 @@ export default async function NewRoomPage({ searchParams }: { searchParams: Prom
               <div>
                 <label className="block text-sm font-semibold text-slate-700 mb-1.5">ປະເພດຫ້ອງ</label>
                 <select name="type" required className={inputClass}>
-                  <option value="Standard">ທຳມະດາ</option>
-                  <option value="VIP">VIP</option>
-                  <option value="Suite">Suite</option>
+                  <option value="1 Bed">1 ຕຽງ</option>
+                  <option value="1 Bed VIP">1 ຕຽງ VIP</option>
+                  <option value="2 Beds">2 ຕຽງ</option>
+                  <option value="2 Beds VIP">2 ຕຽງ VIP</option>
                 </select>
               </div>
               <div>

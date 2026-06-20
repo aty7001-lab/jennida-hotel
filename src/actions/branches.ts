@@ -20,7 +20,7 @@ export async function getAllBranches() {
     return await prisma.branch.findMany({ orderBy: { name: "asc" } });
   } catch (error) {
     console.error("Error fetching branches:", error);
-    return [];
+    throw error;
   }
 }
 

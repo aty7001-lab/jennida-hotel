@@ -15,7 +15,7 @@ export async function getRoomsByBranch(branchId?: string) {
     return rooms;
   } catch (error) {
     console.error("Error fetching rooms:", error);
-    return [];
+    throw error;
   }
 }
 
@@ -27,7 +27,7 @@ export async function getRoomById(id: string) {
     });
   } catch (error) {
     console.error("Error fetching room:", error);
-    return null;
+    throw error;
   }
 }
 

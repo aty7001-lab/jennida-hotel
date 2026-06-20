@@ -51,7 +51,7 @@ export async function createUser(formData: FormData) {
       name,
       email,
       password: hashed,
-      role: role as any,
+      role: role as "ADMIN" | "MANAGER" | "STAFF",
       branchId: branchId || null,
     },
   });
@@ -70,10 +70,10 @@ export async function updateUser(id: string, formData: FormData) {
 
   if (!name || !email) throw new Error("Missing required fields");
 
-  const data: any = {
+  const data: Record<string, unknown> = {
     name,
     email,
-    role,
+    role: role as "ADMIN" | "MANAGER" | "STAFF",
     branchId: branchId || null,
   };
 
