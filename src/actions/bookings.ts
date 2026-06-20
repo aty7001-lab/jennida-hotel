@@ -32,17 +32,26 @@ export async function createBooking(bookingType: "immediate" | "advance", formDa
 
     // Use transaction for atomicity
     await prisma.$transaction(async (tx) => {
-      // 1. Create or Find Guest
-      let guest = await tx.guest.findFirst({
+      // 1. Create or Find Guest — always update name/email with latest entry
+      const existingGuest = await tx.guest.findFirst({
         where: { phone: guestPhone },
       });
 
-      if (!guest) {
+      let guest;
+      if (!existingGuest) {
         guest = await tx.guest.create({
           data: {
             name: guestName,
             phone: guestPhone,
             email: guestEmail,
+          },
+        });
+      } else {
+        guest = await tx.guest.update({
+          where: { id: existingGuest.id },
+          data: {
+            name: guestName,
+            ...(guestEmail ? { email: guestEmail } : {}),
           },
         });
       }
