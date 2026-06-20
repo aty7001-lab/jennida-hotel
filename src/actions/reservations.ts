@@ -124,8 +124,8 @@ export async function earlyCheckout(reservationId: string) {
     .reduce((s, p) => s + p.amount, 0);
 
   const priceDelta = reservation.room.price * (actualNights - originalNights);
-  const newTotal = Math.max(alreadyPaid, reservation.totalAmount + priceDelta);
-  const credit = alreadyPaid > newTotal ? alreadyPaid - newTotal : 0;
+  const newTotal = Math.max(0, reservation.totalAmount + priceDelta);
+  const credit = Math.max(0, alreadyPaid - newTotal);
 
   const lastCompleted = reservation.payments.filter(p => p.status === "COMPLETED").at(-1);
 
