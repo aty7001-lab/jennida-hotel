@@ -24,7 +24,7 @@ export async function createBooking(bookingType: "immediate" | "advance", formDa
     const totalAmount = parseFloat((formData.get("totalAmount") as string) || "0");
     const depositTransfer = parseFloat((formData.get("depositTransfer") as string) || "0");
     const depositCash = parseFloat((formData.get("depositCash") as string) || "0");
-    const source = (formData.get("source") as string) || "WALK_IN";
+    const source = (formData.get("source") as "WALK_IN" | "PHONE" | "OTA_AGODA" | "OTA_BOOKING") || "WALK_IN";
 
     if (!guestName || !guestPhone || !roomIdsStr || !checkInStr || !checkOutStr) {
       throw new Error("Missing required fields");
