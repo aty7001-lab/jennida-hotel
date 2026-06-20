@@ -9,6 +9,7 @@ export async function getRoomsByBranch(branchId?: string) {
       where: whereClause,
       include: {
         branch: true,
+        roomType: true,
       },
       orderBy: { number: "asc" },
     });
@@ -23,7 +24,7 @@ export async function getRoomById(id: string) {
   try {
     return await prisma.room.findUnique({
       where: { id },
-      include: { branch: true },
+      include: { branch: true, roomType: true },
     });
   } catch (error) {
     console.error("Error fetching room:", error);

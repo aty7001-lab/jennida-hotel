@@ -43,7 +43,7 @@ export default async function PrintGroupPage({
     },
     room: {
       number: r.room.number,
-      type:   r.room.type,
+      type:   r.room.roomType.name,
       price:  r.room.price,
       branch: {
         name:    r.room.branch?.name    ?? "",

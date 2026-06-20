@@ -87,7 +87,7 @@ export async function extendStay(reservationId: string, newCheckOut: string) {
   const checkOut = new Date(newCheckOut);
   const reservation = await prisma.reservation.findUnique({
     where: { id: reservationId },
-    include: { room: true },
+    include: { room: { include: { roomType: true } } },
   });
   if (!reservation) throw new Error("ບໍ່ພົບການຈອງ");
   if (reservation.status !== "CHECKED_IN") throw new Error("ສາມາດຕໍ່ໄດ້ສະເພາະທ່ານທີ່ເຊັກອິນຢູ່");
@@ -108,7 +108,7 @@ export async function extendStay(reservationId: string, newCheckOut: string) {
 export async function earlyCheckout(reservationId: string) {
   const reservation = await prisma.reservation.findUnique({
     where: { id: reservationId },
-    include: { room: true, payments: true },
+    include: { room: { include: { roomType: true } }, payments: true },
   });
   if (!reservation) throw new Error("ບໍ່ພົບການຈອງ");
   if (reservation.status !== "CHECKED_IN") throw new Error("ສາມາດໃຊ້ໄດ້ສະເພາະທ່ານທີ່ເຊັກອິນຢູ່");
@@ -160,7 +160,7 @@ export async function changeDates(reservationId: string, newCheckIn: string, new
 
   const reservation = await prisma.reservation.findUnique({
     where: { id: reservationId },
-    include: { room: true },
+    include: { room: { include: { roomType: true } } },
   });
   if (!reservation) throw new Error("ບໍ່ພົບການຈອງ");
   if (!["PENDING", "CONFIRMED"].includes(reservation.status)) throw new Error("ສາມາດດັດແກ້ໄດ້ສະເພາະການຈອງທີ່ຍັງບໍ່ໄດ້ເຊັກອິນ");
@@ -227,7 +227,7 @@ export async function getReservations(branchId?: string) {
     where: branchId ? { room: { branchId } } : undefined,
     include: {
       guest: true,
-      room: { include: { branch: true } },
+      room: { include: { branch: true, roomType: true } },
       payments: true,
     },
     orderBy: { createdAt: "desc" },
@@ -239,7 +239,7 @@ export async function getReservationById(id: string) {
     where: { id },
     include: {
       guest: true,
-      room: { include: { branch: true } },
+      room: { include: { branch: true, roomType: true } },
       payments: { orderBy: { createdAt: "desc" } },
     },
   });
@@ -250,7 +250,7 @@ export async function getReservationsByIds(ids: string[]) {
     where: { id: { in: ids } },
     include: {
       guest: true,
-      room: { include: { branch: true } },
+      room: { include: { branch: true, roomType: true } },
       payments: true,
     },
     orderBy: { createdAt: "desc" },

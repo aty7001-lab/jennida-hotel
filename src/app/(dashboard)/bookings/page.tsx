@@ -29,7 +29,7 @@ export default async function BookingsPage({
 
   const availableRooms = allRooms
     .filter(r => r.status === "AVAILABLE")
-    .map(r => ({ id: r.id, number: r.number, type: r.type, price: r.price }));
+    .map(r => ({ id: r.id, number: r.number, type: r.roomType.name, price: r.price }));
 
   const filtered = params.status
     ? allReservations.filter(r => r.status === params.status)
@@ -55,7 +55,7 @@ export default async function BookingsPage({
     },
     room: {
       number: r.room.number,
-      type:   r.room.type,
+      type:   r.room.roomType.name,
       price:  r.room.price,
       branch: {
         name:    r.room.branch?.name    ?? "",

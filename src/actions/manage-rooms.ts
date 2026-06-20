@@ -6,16 +6,16 @@ import { redirect } from "next/navigation";
 
 export async function createRoom(formData: FormData) {
   const number = formData.get("number") as string;
-  const type = formData.get("type") as string;
+  const roomTypeId = formData.get("roomTypeId") as string;
   const price = parseFloat(formData.get("price") as string);
   const branchId = formData.get("branchId") as string;
 
-  if (!number || !type || !price || !branchId) {
+  if (!number || !roomTypeId || !price || !branchId) {
     throw new Error("Missing required fields");
   }
 
   await prisma.room.create({
-    data: { number, type, price, branchId },
+    data: { number, roomTypeId, price, branchId },
   });
 
   revalidatePath("/rooms");
@@ -33,17 +33,17 @@ export async function deleteRoom(id: string) {
 
 export async function updateRoom(id: string, formData: FormData) {
   const number = formData.get("number") as string;
-  const type = formData.get("type") as string;
+  const roomTypeId = formData.get("roomTypeId") as string;
   const price = parseFloat(formData.get("price") as string);
   const branchId = formData.get("branchId") as string;
 
-  if (!number || !type || !price || !branchId) {
+  if (!number || !roomTypeId || !price || !branchId) {
     throw new Error("Missing required fields");
   }
 
   await prisma.room.update({
     where: { id },
-    data: { number, type, price, branchId },
+    data: { number, roomTypeId, price, branchId },
   });
 
   revalidatePath("/rooms");

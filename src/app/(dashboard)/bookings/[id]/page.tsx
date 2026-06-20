@@ -67,7 +67,7 @@ export default async function BookingDetailPage({
 
   const availableRooms = allRooms
     .filter(room => room.status === "AVAILABLE")
-    .map(room => ({ id: room.id, number: room.number, type: room.type, price: room.price }));
+    .map(room => ({ id: room.id, number: room.number, type: room.roomType.name, price: room.price }));
 
   const paidAmount = r.payments
     .filter(p => p.status === "COMPLETED")
@@ -93,7 +93,7 @@ export default async function BookingDetailPage({
           <div>
             <h1 className="text-2xl font-bold text-slate-900">{r.guest.name}</h1>
             <p className="text-sm text-slate-500 mt-1">
-              ຫ້ອງ #{r.room.number} · {r.room.type}
+              ຫ້ອງ #{r.room.number} · {r.room.roomType.name}
               {r.room.branch?.name && ` · ${r.room.branch.name}`}
             </p>
             <p className="text-xs text-slate-400 mt-1 font-mono uppercase">{r.id.slice(0, 8)}</p>

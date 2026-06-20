@@ -1,11 +1,19 @@
 import { createRoom } from "@/actions/manage-rooms";
 import { getAllBranches } from "@/actions/branches";
+import { getRoomTypesByBranch } from "@/actions/room-types";
+import { getActiveBranchId } from "@/lib/active-branch";
 import { Bed } from "lucide-react";
 import Link from "next/link";
 
 export default async function NewRoomPage({ searchParams }: { searchParams: Promise<{ branchId?: string }> }) {
-  const { branchId: defaultBranchId } = await searchParams;
-  const branches = await getAllBranches();
+  const { branchId: paramBranchId } = await searchParams;
+  const cookieBranchId = await getActiveBranchId();
+  const activeBranchId = paramBranchId || cookieBranchId || "";
+
+  const [branches, roomTypes] = await Promise.all([
+    getAllBranches(),
+    activeBranchId ? getRoomTypesByBranch(activeBranchId) : Promise.resolve([]),
+  ]);
 
   const inputClass = "w-full border-slate-300 rounded-md px-3.5 py-2.5 bg-white border text-slate-900 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none transition-all placeholder:text-slate-400";
 
@@ -29,13 +37,20 @@ export default async function NewRoomPage({ searchParams }: { searchParams: Prom
                 <input name="number" type="text" required placeholder="ເຊັ່ນ: 401" className={inputClass} />
               </div>
               <div>
-                <label className="block text-sm font-semibold text-slate-700 mb-1.5">ປະເພດຫ້ອງ</label>
-                <select name="type" required className={inputClass}>
-                  <option value="1 Bed">1 ຕຽງ</option>
-                  <option value="1 Bed VIP">1 ຕຽງ VIP</option>
-                  <option value="2 Beds">2 ຕຽງ</option>
-                  <option value="2 Beds VIP">2 ຕຽງ VIP</option>
-                </select>
+                <label className="block text-sm font-semibold text-slate-700 mb-1.5">ປະເພດຫ້ອງ <span className="text-red-500">*</span></label>
+                {roomTypes.length > 0 ? (
+                  <select name="roomTypeId" required className={inputClass}>
+                    <option value="" disabled>ເລືອກປະເພດ</option>
+                    {roomTypes.map((t) => (
+                      <option key={t.id} value={t.id}>{t.name}</option>
+                    ))}
+                  </select>
+                ) : (
+                  <div className="w-full border border-amber-300 rounded-md px-3.5 py-2.5 bg-amber-50 text-amber-700 text-sm">
+                    ຍັງບໍ່ມີປະເພດຫ້ອງ —{" "}
+                    <Link href="/room-types/new" className="underline font-medium">ສ້າງປະເພດໃໝ່ກ່ອນ</Link>
+                  </div>
+                )}
               </div>
               <div>
                 <label className="block text-sm font-semibold text-slate-700 mb-1.5">ລາຄາ/ຄືນ (₭) <span className="text-red-500">*</span></label>
@@ -43,7 +58,7 @@ export default async function NewRoomPage({ searchParams }: { searchParams: Prom
               </div>
               <div>
                 <label className="block text-sm font-semibold text-slate-700 mb-1.5">ສາຂາ <span className="text-red-500">*</span></label>
-                <select name="branchId" required defaultValue={defaultBranchId ?? ""} className={inputClass}>
+                <select name="branchId" required defaultValue={activeBranchId} className={inputClass}>
                   <option value="" disabled>ເລືອກສາຂາ</option>
                   {branches.map(b => (
                     <option key={b.id} value={b.id}>{b.name} ({b.code})</option>
@@ -56,7 +71,7 @@ export default async function NewRoomPage({ searchParams }: { searchParams: Prom
             <Link href="/rooms" className="px-5 py-2 border border-slate-300 rounded-md text-sm font-medium text-slate-700 bg-white hover:bg-slate-50 transition-colors">
               ຍົກເລີກ
             </Link>
-            <button type="submit" className="px-5 py-2 bg-indigo-600 rounded-md text-sm font-medium text-white shadow-sm hover:bg-indigo-700 transition-colors">
+            <button type="submit" disabled={roomTypes.length === 0} className="px-5 py-2 bg-indigo-600 rounded-md text-sm font-medium text-white shadow-sm hover:bg-indigo-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
               ສ້າງຫ້ອງ
             </button>
           </div>

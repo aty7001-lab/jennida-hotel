@@ -72,9 +72,10 @@ export default async function Sidebar() {
 
         {/* ── ການຈອງ & ຫ້ອງ ── */}
         <NavLabel label="ການຈອງ & ຫ້ອງ" />
-        <SidebarItem href="/bookings"  icon={<ClipboardList size={17} />} label="ລາຍການຈອງ" />
-        <SidebarItem href="/rooms"     icon={<Bed size={17} />}           label={dict.sidebar.rooms} />
-        <SidebarItem href="/calendar"  icon={<Calendar size={17} />}      label={dict.sidebar.calendar} />
+        <SidebarItem href="/bookings"    icon={<ClipboardList size={17} />} label="ລາຍການຈອງ" />
+        <SidebarItem href="/rooms"       icon={<Bed size={17} />}           label={dict.sidebar.rooms} />
+        <SidebarItem href="/room-types"  icon={<LayoutGrid size={17} />}    label="ປະເພດຫ້ອງ" />
+        <SidebarItem href="/calendar"    icon={<Calendar size={17} />}      label={dict.sidebar.calendar} />
 
         {/* ── ຂໍ້ມູນ ── */}
         <NavLabel label="ຂໍ້ມູນ" />

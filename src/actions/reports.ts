@@ -129,7 +129,7 @@ export async function getFinancialReport(startDateStr: string, endDateStr: strin
     include: {
       payments: { where: { status: "COMPLETED" }, select: { amount: true } },
       guest: { select: { name: true } },
-      room: { select: { number: true, type: true } },
+      room: { select: { number: true, roomType: { select: { name: true } } } },
     },
     orderBy: { checkIn: "desc" },
   });
@@ -147,7 +147,7 @@ export async function getFinancialReport(startDateStr: string, endDateStr: strin
       id: r.id,
       guestName: r.guest.name,
       roomNumber: r.room.number,
-      roomType: r.room.type,
+      roomType: r.room.roomType.name,
       checkIn: r.checkIn.toISOString(),
       checkOut: r.checkOut.toISOString(),
       source: r.source,
@@ -187,7 +187,7 @@ export async function getOccupancyReport(startDateStr: string, endDateStr: strin
       checkIn: { lte: end },
       checkOut: { gte: start },
     },
-    include: { room: true },
+    include: { room: { include: { roomType: true } } },
   });
 
   const totalRooms = await prisma.room.count({ where: branchId ? { branchId } : {} });
@@ -212,7 +212,7 @@ export async function getOccupancyReport(startDateStr: string, endDateStr: strin
 
   // Room Type Popularity
   const roomTypes = activeBookings.reduce((acc: any, b) => {
-    acc[b.room.type] = (acc[b.room.type] || 0) + 1;
+    acc[b.room.roomType.name] = (acc[b.room.roomType.name] || 0) + 1;
     return acc;
   }, {});
 

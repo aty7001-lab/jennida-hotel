@@ -33,7 +33,7 @@ export default async function RoomsPage({ searchParams }: { searchParams: Promis
     const q = params.q.toLowerCase();
     rooms = rooms.filter(r =>
       r.number.toLowerCase().includes(q) ||
-      r.type.toLowerCase().includes(q) ||
+      r.roomType.name.toLowerCase().includes(q) ||
       (r.branch?.name || '').toLowerCase().includes(q)
     );
   }
@@ -47,7 +47,7 @@ export default async function RoomsPage({ searchParams }: { searchParams: Promis
   const RoomRow = ({ room }: { room: typeof rooms[0] }) => (
     <tr className="hover:bg-slate-50/80 transition-colors">
       <td className="px-4 py-2.5 text-sm text-slate-900 font-medium">#{room.number}</td>
-      <td className="px-4 py-2.5 text-sm text-slate-700">{room.type}</td>
+      <td className="px-4 py-2.5 text-sm text-slate-700">{room.roomType.name}</td>
       <td className="px-4 py-2.5 text-sm text-slate-900">₭{room.price.toLocaleString()}</td>
       <td className="px-4 py-2.5">
         <span className={`inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium border ${statusStyle[room.status] ?? ''}`}>
@@ -165,7 +165,7 @@ export default async function RoomsPage({ searchParams }: { searchParams: Promis
                   ) : rooms.map(room => (
                     <tr key={room.id} className="hover:bg-slate-50/80 transition-colors">
                       <td className="px-4 py-2.5 text-sm text-slate-900 font-medium">#{room.number}</td>
-                      <td className="px-4 py-2.5 text-sm text-slate-700">{room.type}</td>
+                      <td className="px-4 py-2.5 text-sm text-slate-700">{room.roomType.name}</td>
                       {!isStaff && <td className="px-4 py-2.5 text-sm text-slate-700">{room.branch?.name || '-'}</td>}
                       <td className="px-4 py-2.5 text-sm text-slate-900">₭{room.price.toLocaleString()}</td>
                       <td className="px-4 py-2.5 text-right">
