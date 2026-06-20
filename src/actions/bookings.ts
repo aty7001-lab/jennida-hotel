@@ -4,6 +4,14 @@ import prisma from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
+export async function lookupGuestByPhone(phone: string): Promise<{ name: string; email: string | null } | null> {
+  if (!phone || phone.replace(/\D/g, "").length < 6) return null;
+  return prisma.guest.findFirst({
+    where: { phone },
+    select: { name: true, email: true },
+  });
+}
+
 export async function createBooking(bookingType: "immediate" | "advance", formData: FormData) {
   const isImmediate = bookingType === "immediate";
   try {

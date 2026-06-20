@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useRef } from "react";
-import { CalendarDays, Banknote, UserCircle } from "lucide-react";
+import { CalendarDays, Banknote, UserCircle, Loader2 } from "lucide-react";
+import { lookupGuestByPhone } from "@/actions/bookings";
 
 type Room = {
   id: string;
@@ -42,6 +43,21 @@ export default function NewBookingForm({
   const [guestName, setGuestName] = useState("");
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
+  const [lookupState, setLookupState] = useState<"idle" | "loading" | "found" | "new">("idle");
+
+  async function handlePhoneBlur(phoneVal: string) {
+    const digits = phoneVal.replace(/\D/g, "");
+    if (digits.length < 6) { setLookupState("idle"); return; }
+    setLookupState("loading");
+    const guest = await lookupGuestByPhone(phoneVal);
+    if (guest) {
+      setGuestName(guest.name);
+      if (guest.email) setEmail(guest.email);
+      setLookupState("found");
+    } else {
+      setLookupState("new");
+    }
+  }
   const [depositTransfer, setDepositTransfer] = useState("");
   const [depositCash, setDepositCash] = useState("");
 
@@ -129,8 +145,39 @@ export default function NewBookingForm({
             <h2 className="text-lg font-semibold text-slate-800">{dict.booking.guestInfo}</h2>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5">
+            {/* Phone first — triggers lookup */}
             <div>
-              <label className="block text-sm font-semibold text-slate-700 mb-1.5">{dict.booking.fullName}</label>
+              <label className="block text-sm font-semibold text-slate-700 mb-1.5">{dict.booking.phone}</label>
+              <div className="relative">
+                <input
+                  type="tel"
+                  value={phone}
+                  onChange={(e) => { setPhone(e.target.value); setLookupState("idle"); setGuestName(""); setEmail(""); }}
+                  onBlur={(e) => handlePhoneBlur(e.target.value)}
+                  className={inputClass}
+                  placeholder="+856 20 xxxx xxxx"
+                />
+                {lookupState === "loading" && (
+                  <Loader2 size={15} className="absolute right-3 top-3 text-slate-400 animate-spin" />
+                )}
+              </div>
+            </div>
+
+            {/* Guest name — auto-filled if found */}
+            <div>
+              <div className="flex items-center justify-between mb-1.5">
+                <label className="block text-sm font-semibold text-slate-700">{dict.booking.fullName}</label>
+                {lookupState === "found" && (
+                  <span className="text-xs font-medium text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full">
+                    ✓ ພົບຂໍ້ມູນແຂກ
+                  </span>
+                )}
+                {lookupState === "new" && (
+                  <span className="text-xs font-medium text-indigo-700 bg-indigo-50 border border-indigo-200 px-2 py-0.5 rounded-full">
+                    + ແຂກໃໝ່
+                  </span>
+                )}
+              </div>
               <input
                 type="text"
                 value={guestName}
@@ -139,16 +186,7 @@ export default function NewBookingForm({
                 placeholder="ສົມສາກ ສີສຸລິດ"
               />
             </div>
-            <div>
-              <label className="block text-sm font-semibold text-slate-700 mb-1.5">{dict.booking.phone}</label>
-              <input
-                type="tel"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-                className={inputClass}
-                placeholder="+856 20 xxxx xxxx"
-              />
-            </div>
+
             <div>
               <label className="block text-sm font-semibold text-slate-700 mb-1.5">ອີເມວ</label>
               <input
